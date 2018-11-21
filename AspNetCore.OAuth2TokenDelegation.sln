@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.106
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.OAuth2TokenDelegation", "src\AspNetCore.OAuth2TokenDelegation\AspNetCore.OAuth2TokenDelegation.csproj", "{1509889B-F8DA-45A4-A238-D2DA6DD0012A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FD3FB024-2E67-4B1A-AC6E-4DFFC3AD42B6}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D00E4DF4-5567-44DC-AD3F-EF7619908CA5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.OAuth2TokenDelegation.Tests", "test\AspNetCore.OAuth2TokenDelegation.Tests\AspNetCore.OAuth2TokenDelegation.Tests.csproj", "{3F282995-EB61-4D23-9FFA-714AF0AAD4AB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C1AC63E2-CB01-4974-BCD8-0815A29EF685}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1509889B-F8DA-45A4-A238-D2DA6DD0012A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1509889B-F8DA-45A4-A238-D2DA6DD0012A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1509889B-F8DA-45A4-A238-D2DA6DD0012A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1509889B-F8DA-45A4-A238-D2DA6DD0012A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F282995-EB61-4D23-9FFA-714AF0AAD4AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F282995-EB61-4D23-9FFA-714AF0AAD4AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F282995-EB61-4D23-9FFA-714AF0AAD4AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F282995-EB61-4D23-9FFA-714AF0AAD4AB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1509889B-F8DA-45A4-A238-D2DA6DD0012A} = {C1AC63E2-CB01-4974-BCD8-0815A29EF685}
+		{3F282995-EB61-4D23-9FFA-714AF0AAD4AB} = {D00E4DF4-5567-44DC-AD3F-EF7619908CA5}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DAD72CBF-2B00-4AB1-8512-65F767597ED8}
+	EndGlobalSection
+EndGlobal
