@@ -3,6 +3,16 @@
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
+name: $(SourceBranchName)$(Rev:.r)
+
+trigger:
+- master
+- release/*
+
+pr:
+- master
+- release/*
+
 pool:
   vmImage: 'Ubuntu 16.04'
 
@@ -22,7 +32,7 @@ steps:
   failOnStderr: true
   displayName: 'Compute version'
   
-- script: dotnet build --configuration $(buildConfiguration) -p Version=$(version)
+- script: dotnet build --configuration $(buildConfiguration) -p:Version=$(version)
   displayName: 'dotnet build $(buildConfiguration)'
   
 - task: DotNetCoreCLI@2
