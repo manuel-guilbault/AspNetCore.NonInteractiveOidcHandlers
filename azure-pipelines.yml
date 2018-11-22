@@ -8,7 +8,35 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  dotnetcore.version: '2.1.403'
 
 steps:
+- powershell: |
+   If ($env:BUILD_BUILDNUMBER -match "^\d+\.\d+\.\d+\.\d+$") {
+       $version = $env:BUILD_BUILDNUMBER
+   } Else {
+       $version = $env:BUILD_BUILDNUMBER -replace "^.+\.(\d+)$", '1.0.0.$1'
+   }
+   Write-Host "##vso[task.setvariable variable=Version]$version"
+   Write-Host "Computed version: $version"
+  failOnStderr: true
+  displayName: 'Compute version'
+  
 - script: dotnet build --configuration $(buildConfiguration) -p Version=$(version)
   displayName: 'dotnet build $(buildConfiguration)'
+  
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet test'
+  inputs:
+    command: test
+    
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack'
+  inputs:
+    command: pack
+    packagesToPack: 'src/**/*.csproj'
+    
+- task: PublishPipelineArtifact@0
+  displayName: 'Publish Pipeline Artifact'
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)'
