@@ -9,13 +9,18 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests.Util
 {
 	class PipelineFactory
 	{
+		private const string DefaultDownstreamApi = "default";
+
 		public static TestServer CreateServer(
 			Action<OAuth2TokenDelegationOptions> configureOptions,
 			bool addCaching = false,
 			DownstreamApiHandler downstreamApi = null)
-		{
-			const string downstreamApiClientName = "default";
+			=> CreateServer(addCaching, new DownstreamApi(DefaultDownstreamApi, downstreamApi ?? new DownstreamApiHandler(), configureOptions));
 
+		public static TestServer CreateServer(
+			bool addCaching = false,
+			params DownstreamApi[] downstreamApis)
+		{
 			return new TestServer(new WebHostBuilder()
 				.ConfigureServices(services =>
 				{
@@ -24,18 +29,21 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests.Util
 						services.AddDistributedMemoryCache();
 					}
 
-					services
-						.AddHttpClient(downstreamApiClientName)
-						.AddOAuth2TokenDelegation(configureOptions)
-						.AddHttpMessageHandler(_ => downstreamApi ?? new DownstreamApiHandler());
+					foreach (var downstreamApi in downstreamApis)
+					{
+						services
+							.AddHttpClient(downstreamApi.Name, o => { o.BaseAddress = new Uri($"https://{downstreamApi.Name}"); })
+							.AddOAuth2TokenDelegation(downstreamApi.ConfigureOptions)
+							.AddHttpMessageHandler(_ => downstreamApi.Handler);
+					}
 				})
 				.Configure(app =>
 				{
 					app.Use(async (context, next) =>
 					{
 						var httpClientFactory = context.RequestServices.GetRequiredService<IHttpClientFactory>();
-						var httpClient = httpClientFactory.CreateClient(downstreamApiClientName);
-						await httpClient.GetAsync("https://downstream");
+						var httpClient = httpClientFactory.CreateClient(context.Request.Host.Host);
+						await httpClient.GetAsync(context.Request.Path);
 
 						context.Response.StatusCode = 200;
 					});
@@ -47,6 +55,12 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests.Util
 			bool addCaching = false,
 			DownstreamApiHandler downstreamApi = null)
 			=> CreateServer(configureOptions, addCaching, downstreamApi)
+				.CreateClient();
+
+		public static HttpClient CreateClient(
+			bool addCaching = false,
+			params DownstreamApi[] downstreamApis)
+			=> CreateServer(addCaching, downstreamApis)
 				.CreateClient();
 	}
 }

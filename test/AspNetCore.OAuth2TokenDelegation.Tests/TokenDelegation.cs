@@ -23,7 +23,7 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests
 			var downstreamApi = new DownstreamApiHandler();
 			var client = PipelineFactory.CreateClient(_options, downstreamApi: downstreamApi);
 
-			await client.GetAsync("https://upstream");
+			await client.GetAsync("https://default");
 
 			Check.That(downstreamApi.LastRequestToken).IsNull();
 		}
@@ -38,7 +38,7 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests
 			});
 			client.SetBearerToken("1234");
 
-			async Task Act() => await client.GetAsync("https://upstream");
+			async Task Act() => await client.GetAsync("https://default");
 
 			Check.ThatAsyncCode(Act)
 				.Throws<InvalidOperationException>().WithMessage("Token retrieval failed: invalid_grant ");
@@ -56,10 +56,38 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests
 			}, downstreamApi: downstreamApi);
 			client.SetBearerToken("upstream-token");
 
-			await client.GetAsync("https://upstream");
+			await client.GetAsync("https://default");
 
 			Check.That(tokenEndpoint.LastRequestToken).IsEqualTo("upstream-token");
 			Check.That(downstreamApi.LastRequestToken).IsEqualTo("downstream-token");
+		}
+
+		[Fact]
+		public async Task Authenticated_request_from_upstream_should_trigger_authenticated_request_to_proper_downstream_when_multiple_clients_registered()
+		{
+			var tokenEndpointA = TokenEndpointHandler.ValidBearerToken("downstream-token-a", TimeSpan.MaxValue);
+			var downstreamApiA = new DownstreamApiHandler();
+			var tokenEndpointB = TokenEndpointHandler.ValidBearerToken("downstream-token-b", TimeSpan.MaxValue);
+			var downstreamApiB = new DownstreamApiHandler();
+			var client = PipelineFactory.CreateClient(false,
+				new DownstreamApi("downstream-a", downstreamApiA, o =>
+				{
+					_options(o);
+					o.Scope = "downstream-api-a";
+					o.TokenHttpHandler = tokenEndpointA;
+				}),
+				new DownstreamApi("downstream-b", downstreamApiB, o =>
+				{
+					_options(o);
+					o.Scope = "downstream-api-b";
+					o.TokenHttpHandler = tokenEndpointB;
+				}));
+			client.SetBearerToken("upstream-token");
+
+			await client.GetAsync("https://downstream-b");
+
+			Check.That(downstreamApiA.LastRequestToken).IsNull();
+			Check.That(downstreamApiB.LastRequestToken).IsEqualTo("downstream-token-b");
 		}
 	}
 }

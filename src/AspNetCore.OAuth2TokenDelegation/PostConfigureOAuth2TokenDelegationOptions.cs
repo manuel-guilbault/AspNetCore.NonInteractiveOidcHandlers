@@ -26,7 +26,7 @@ namespace AspNetCore.OAuth2TokenDelegation
                 throw new InvalidOperationException("Caching is enabled, but no IDistributedCache is found in the services collection.");
             }
 
-            options.TokenClient = new AsyncLazy<TokenClient>(() => InitializeTokenClient(options));
+            options.TokenClient = new AsyncLazy<TokenClient>(() => CreateTokenClient(options));
             options.LazyTokens = new ConcurrentDictionary<string, AsyncLazy<TokenResponse>>();
         }
 
@@ -37,26 +37,26 @@ namespace AspNetCore.OAuth2TokenDelegation
                 : new DiscoveryClient(options.Authority);
 
             client.Timeout = options.DiscoveryTimeout;
-            client.Policy = options?.DiscoveryPolicy ?? new DiscoveryPolicy();
+            client.Policy = options.DiscoveryPolicy ?? new DiscoveryPolicy();
 
-            var disco = await client.GetAsync().ConfigureAwait(false);
-            if (disco.IsError)
+            var discoveryResponse = await client.GetAsync().ConfigureAwait(false);
+            if (discoveryResponse.IsError)
             {
-                if (disco.ErrorType == ResponseErrorType.Http)
+                if (discoveryResponse.ErrorType == ResponseErrorType.Http)
                 {
-                    throw new InvalidOperationException($"Discovery endpoint {client.Url} is unavailable: {disco.Error}");
+                    throw new InvalidOperationException($"Discovery endpoint {client.Url} is unavailable: {discoveryResponse.Error}");
                 }
-                if (disco.ErrorType == ResponseErrorType.PolicyViolation)
+                if (discoveryResponse.ErrorType == ResponseErrorType.PolicyViolation)
                 {
-                    throw new InvalidOperationException($"Policy error while contacting the discovery endpoint {client.Url}: {disco.Error}");
+                    throw new InvalidOperationException($"Policy error while contacting the discovery endpoint {client.Url}: {discoveryResponse.Error}");
                 }
-                if (disco.ErrorType == ResponseErrorType.Exception)
+                if (discoveryResponse.ErrorType == ResponseErrorType.Exception)
                 {
-                    throw new InvalidOperationException($"Error parsing discovery document from {client.Url}: {disco.Error}");
+                    throw new InvalidOperationException($"Error parsing discovery document from {client.Url}: {discoveryResponse.Error}");
                 }
             }
 
-            return disco.TokenEndpoint;
+            return discoveryResponse.TokenEndpoint;
         }
 
         private async Task<string> GetTokenEndpoint(OAuth2TokenDelegationOptions options)
@@ -71,7 +71,7 @@ namespace AspNetCore.OAuth2TokenDelegation
             return endpoint;
         }
 
-        private async Task<TokenClient> InitializeTokenClient(OAuth2TokenDelegationOptions options)
+        private async Task<TokenClient> CreateTokenClient(OAuth2TokenDelegationOptions options)
         {
             var endpoint = await GetTokenEndpoint(options).ConfigureAwait(false);
 

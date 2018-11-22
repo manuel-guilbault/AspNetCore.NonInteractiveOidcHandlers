@@ -11,7 +11,7 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests
 		[Fact]
 		public void Empty_options_should_throw()
 		{
-			Task Act() => PipelineFactory.CreateClient(o => { }).GetAsync("https://upstream");
+			Task Act() => PipelineFactory.CreateClient(o => { }).GetAsync("https://default");
 
 			Check.ThatAsyncCode(Act)
 				.Throws<InvalidOperationException>()
@@ -25,7 +25,7 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests
 		[Fact]
 		public void No_ClientId_should_throw()
 		{
-			Task Act() => PipelineFactory.CreateClient(o => { o.Authority = "https://authority"; }).GetAsync("https://upstream");
+			Task Act() => PipelineFactory.CreateClient(o => { o.Authority = "https://authority"; }).GetAsync("https://default");
 
 			Check.ThatAsyncCode(Act)
 				.Throws<InvalidOperationException>()
@@ -42,7 +42,7 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests
 			{
 				o.Authority = "https://authority";
 				o.ClientId = "test-client";
-			}).GetAsync("https://upstream");
+			}).GetAsync("https://default");
 
 			Check.ThatAsyncCode(Act)
 				.Throws<InvalidOperationException>()
@@ -59,7 +59,7 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests
 				o.Authority = "https://authority";
 				o.ClientId = "test-client";
 				o.ClientSecret = "test-client secret key";
-			}).GetAsync("https://upstream");
+			}).GetAsync("https://default");
 
 			Check.ThatAsyncCode(Act)
 				.Throws<InvalidOperationException>()
@@ -77,7 +77,7 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests
 				o.ClientSecret = "test-client secret key";
 				o.Scope = "downstream-api";
 				o.TokenRetriever = null;
-			}).GetAsync("https://upstream");
+			}).GetAsync("https://default");
 
 			Check.ThatAsyncCode(Act)
 				.Throws<InvalidOperationException>()
@@ -94,7 +94,7 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests
 				o.ClientId = "test-client";
 				o.ClientSecret = "test-client secret key";
 				o.Scope = "downstream-api";
-			}).GetAsync("https://upstream");
+			}).GetAsync("https://default");
 
 			Check.ThatAsyncCode(Act).Not.ThrowsAny();
 		}
@@ -109,7 +109,7 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests
 				o.ClientSecret = "test-client secret key";
 				o.Scope = "downstream-api";
 				o.EnableCaching = true;
-			}, addCaching: false).GetAsync("https://upstream");
+			}, addCaching: false).GetAsync("https://default");
 
 			Check.ThatAsyncCode(Act)
 				.Throws<InvalidOperationException>()
@@ -125,7 +125,7 @@ namespace AspNetCore.OAuth2TokenDelegation.Tests
 				o.ClientId = "test-client";
 				o.ClientSecret = "test-client secret key";
 				o.Scope = "downstream-api";
-			}, addCaching: true).GetAsync("https://upstream");
+			}, addCaching: true).GetAsync("https://default");
 
 			Check.ThatAsyncCode(Act).Not.ThrowsAny();
 		}
