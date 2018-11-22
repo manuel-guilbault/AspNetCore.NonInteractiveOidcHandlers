@@ -1,0 +1,31 @@
+<Project>
+  <PropertyGroup>
+    <Product>AspNetCore.OAuth2TokenDelegation</Product>
+    <Company></Company>
+    <Copyright></Copyright>
+    <!-- Versionning rules
+    For a 1.2.3.4 where 1 is major, 2 is minor, 3 is patch and 4 is revision
+    Version is the NuGet version, can be 1.2.3 or 1.2.3.4
+    AssemblyVersion is the version used by .Net when loading assemblies, it should be 1.2.0.0 to avoid binding redirects mess
+    FileVersion is the version displayed in the explorer, it should be 1.2.3.4
+    InformationalVersion is the product version, it should be 1.2.3.4 and eventually have more info (branch, commit hash, etc.)
+    -->
+    <Version Condition="'$(Version)' == ''">1.0.0.0</Version>
+    <Major>$(Version.Split('.')[0])</Major>
+    <Minor>$(Version.Split('.')[1])</Minor>
+    <AssemblyVersion>$(Major).$(Minor).0.0</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
+    <InformationalVersion>$(Version)</InformationalVersion>
+    <InformationalVersion Condition="'$(Build_SourceBranchName)'!=''">$(InformationalVersion) $(Build_SourceBranchName)</InformationalVersion>
+    <InformationalVersion Condition="'$(Build_SourceVersion)'!=''">$(InformationalVersion) $(Build_SourceVersion.Substring(0, 8))</InformationalVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <GenerateSerializationAssemblies>false</GenerateSerializationAssemblies>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <DebugType>embedded</DebugType>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+</Project>
