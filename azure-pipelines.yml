@@ -21,10 +21,10 @@ variables:
   dotnetcore.version: '2.1.403'
 
 steps:
-- task: DotNetCoreInstaller@0
-  displayName: 'Use .NET Core sdk 2.1.500'
-  inputs:
-    version: 2.1.500
+#- task: DotNetCoreInstaller@0
+#  displayName: 'Use .NET Core sdk 2.1.500'
+#  inputs:
+#    version: 2.1.500
 
 - powershell: |
    If ($env:BUILD_BUILDNUMBER -match "^\d+\.\d+\.\d+\.\d+$") {
