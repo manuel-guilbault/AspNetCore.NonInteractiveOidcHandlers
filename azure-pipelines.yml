@@ -39,13 +39,21 @@ steps:
   
 - script: dotnet build --configuration $(buildConfiguration) -p:Version=$(version)
   displayName: 'dotnet build $(buildConfiguration)'
+ 
+- task: VisualStudioTestPlatformInstaller@1
+  displayName: 'Visual Studio Test Platform Installer'
   
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet test'
+- task: VSTest@2
+  displayName: 'Run tests'
   inputs:
-    command: test
-    projects: 'test/**/*.csproj'
-    arguments: '--configuration $(BuildConfiguration)'
+    testAssemblyVer2: 'test\**\*.Tests.dll'
+    runInParallel: true
+#- task: DotNetCoreCLI@2
+#  displayName: 'dotnet test'
+#  inputs:
+#    command: test
+#    projects: 'test/**/*.csproj'
+#    arguments: '--configuration $(BuildConfiguration)'
     
 - task: DotNetCoreCLI@2
   displayName: 'dotnet pack'
