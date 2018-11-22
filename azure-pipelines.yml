@@ -45,7 +45,7 @@ steps:
   inputs:
     command: test
     projects: 'test/**/*.csproj'
-    arguments: '--configuration $(BuildConfiguration) --verbosity d'
+    arguments: '--configuration $(BuildConfiguration)'
     
 - task: DotNetCoreCLI@2
   displayName: 'dotnet pack'
