@@ -37,7 +37,7 @@ steps:
   failOnStderr: true
   displayName: 'Compute version'
   
-- script: dotnet build --configuration $(buildConfiguration) -p:Version=$(version)
+- script: dotnet build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) -p:Version=$(version)
   displayName: 'dotnet build $(buildConfiguration)'
  
 #- task: VisualStudioTestPlatformInstaller@1
@@ -58,12 +58,12 @@ steps:
 #    projects: 'test/**/*.csproj'
 #    arguments: '--configuration $(BuildConfiguration)'
     
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet pack'
-  inputs:
-    command: pack
-    packagesToPack: 'src/**/*.csproj'
-    
+#- task: DotNetCoreCLI@2
+#  displayName: 'dotnet pack'
+#  inputs:
+#    command: pack
+#    packagesToPack: 'src/**/*.csproj'
+  
 - task: PublishPipelineArtifact@0
   displayName: 'Publish Pipeline Artifact'
   inputs:

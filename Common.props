@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <Product>AspNetCore.OAuth2TokenDelegation</Product>
+    <Product>AspNetCore.NonInteractiveOidcHandlers</Product>
     <Company></Company>
     <Copyright></Copyright>
     <!-- Versionning rules
