@@ -32,8 +32,11 @@ steps:
    } Else {
        $version = $env:BUILD_BUILDNUMBER -replace "^.+\.(\d+)$", '1.0.0.$1'
    }
+   $buildRevision = $env:BUILD_BUILDNUMBER.Split(".")[3]
+   Write-Host "##vso[task.setvariable variable=Build.Revision]$buildRevision"
    Write-Host "##vso[task.setvariable variable=Version]$version"
-   Write-Host "Computed version: $version"
+   Write-Host "Computed Version: $version"
+   Write-Host "Computed Build.Revision: $buildRevision"
   failOnStderr: true
   displayName: 'Compute version'
   
@@ -58,17 +61,21 @@ steps:
 #    projects: 'test/**/*.csproj'
 #    arguments: '--configuration $(BuildConfiguration)'
     
-#- task: DotNetCoreCLI@2
-#  displayName: 'dotnet pack'
-#  inputs:
-#    command: pack
-#    packagesToPack: 'src/**/*.csproj'
-
-- task: CopyFiles@2
-  displayName: 'Copy sources & binaries to: $(Build.ArtifactStagingDirectory)'
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack pre-release package'
   inputs:
-    SourceFolder: src
-    TargetFolder: '$(Build.ArtifactStagingDirectory)\src'
+    command: custom
+    projects: 'src\AspNetCore.NonInteractiveOidcHandlers\AspNetCore.NonInteractiveOidcHandlers.csproj'
+    custom: pack
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) -p:Version=$(Build.BuildNumber) -p:PackageVersion=$(Build.SourceBranchName)-pre.$(Build.Revision)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack release package'
+  inputs:
+    command: custom
+    projects: 'src\AspNetCore.NonInteractiveOidcHandlers\AspNetCore.NonInteractiveOidcHandlers.csproj'
+    custom: pack
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) -p:Version=$(Build.BuildNumber) -p:PackageVersion=$(Build.SourceBranchName)'
   
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
