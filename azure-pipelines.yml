@@ -63,6 +63,12 @@ steps:
 #  inputs:
 #    command: pack
 #    packagesToPack: 'src/**/*.csproj'
+
+- task: CopyFiles@2
+  displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)\src'
+  inputs:
+    SourceFolder: src
+    TargetFolder: '$(Build.ArtifactStagingDirectory)\src'
   
 - task: PublishPipelineArtifact@0
   displayName: 'Publish Pipeline Artifact'
