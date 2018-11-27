@@ -70,7 +70,5 @@ steps:
     SourceFolder: src
     TargetFolder: '$(Build.ArtifactStagingDirectory)\src'
   
-- task: PublishPipelineArtifact@0
-  displayName: 'Publish Pipeline Artifact'
-  inputs:
-    targetPath: '$(Build.ArtifactStagingDirectory)'
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
