@@ -37,7 +37,7 @@ steps:
   failOnStderr: true
   displayName: 'Compute version'
   
-- script: dotnet build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) -p:Version=$(version)
+- script: dotnet build --configuration $(buildConfiguration) -p:Version=$(version)
   displayName: 'dotnet build $(buildConfiguration)'
  
 #- task: VisualStudioTestPlatformInstaller@1
@@ -65,7 +65,7 @@ steps:
 #    packagesToPack: 'src/**/*.csproj'
 
 - task: CopyFiles@2
-  displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)\src'
+  displayName: 'Copy sources & binaries to: $(Build.ArtifactStagingDirectory)'
   inputs:
     SourceFolder: src
     TargetFolder: '$(Build.ArtifactStagingDirectory)\src'
