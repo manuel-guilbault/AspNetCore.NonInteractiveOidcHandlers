@@ -109,7 +109,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 					o.ClientId = "test-client";
 					o.ClientSecret = "test-client secret key";
 					o.Scope = "downstream-api";
-					o.UserCredentialsRetriever = () => ("some-username", "some-password");
+					o.UserCredentialsRetriever = (_) => ("some-username", "some-password");
 					o.AuthorityHttpClientAccessor = () => TokenEndpointHandler.ValidBearerToken("some-token", TimeSpan.MaxValue).AsHttpClient();
 				}))
 				.GetAsync("https://default");
@@ -127,7 +127,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 					o.ClientId = "test-client";
 					o.ClientSecret = "test-client secret key";
 					o.Scope = "downstream-api";
-					o.UserCredentialsRetriever = () => ("some-username", "some-password");
+					o.UserCredentialsRetriever = (_) => ("some-username", "some-password");
 					o.EnableCaching = true;
 				}), addCaching: false)
 				.GetAsync("https://default");
@@ -147,7 +147,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 					o.ClientId = "test-client";
 					o.ClientSecret = "test-client secret key";
 					o.Scope = "downstream-api";
-					o.UserCredentialsRetriever = () => ("some-username", "some-password");
+					o.UserCredentialsRetriever = (_) => ("some-username", "some-password");
 					o.AuthorityHttpClientAccessor = () => TokenEndpointHandler.ValidBearerToken("some-token", TimeSpan.MaxValue).AsHttpClient();
 				}), addCaching: true)
 				.GetAsync("https://default");

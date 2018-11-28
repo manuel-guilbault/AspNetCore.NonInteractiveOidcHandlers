@@ -85,7 +85,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 					o.TokenEndpoint = "https://authority/connect/token";
 					o.ClientId = "test-client";
 					o.ClientSecret = "test-client secret key";
-					o.RefreshTokenRetriever = () => "some-refresh-token";
+					o.RefreshTokenRetriever = (_) => "some-refresh-token";
 					o.AuthorityHttpClientAccessor = () => TokenEndpointHandler.ValidBearerToken("some-token", TimeSpan.MaxValue).AsHttpClient();
 				}))
 				.GetAsync("https://default");
@@ -102,7 +102,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 					o.Authority = "https://authority";
 					o.ClientId = "test-client";
 					o.ClientSecret = "test-client secret key";
-					o.RefreshTokenRetriever = () => "some-refresh-token";
+					o.RefreshTokenRetriever = (_) => "some-refresh-token";
 					o.EnableCaching = true;
 				}), addCaching: false)
 				.GetAsync("https://default");
@@ -121,7 +121,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 					o.TokenEndpoint = "https://authority/connect/token";
 					o.ClientId = "test-client";
 					o.ClientSecret = "test-client secret key";
-					o.RefreshTokenRetriever = () => "some-refresh-token";
+					o.RefreshTokenRetriever = (_) => "some-refresh-token";
 					o.AuthorityHttpClientAccessor = () => TokenEndpointHandler.ValidBearerToken("some-token", TimeSpan.MaxValue).AsHttpClient();
 				}), addCaching: true)
 				.GetAsync("https://default");

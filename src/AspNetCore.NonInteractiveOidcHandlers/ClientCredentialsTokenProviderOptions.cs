@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using AspNetCore.NonInteractiveOidcHandlers.Infrastructure;
 using IdentityModel;
 using IdentityModel.Client;
@@ -22,7 +22,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
         /// </summary>
         public IDictionary<string, string> ExtraTokenParameters { get; set; }
 
-        internal AsyncLazy<TokenResponse> LazyToken { get; set; }
+        internal AsyncMutex<TokenResponse> TokenMutex { get; set; }
 
         protected override IEnumerable<string> GetValidationErrors()
         {

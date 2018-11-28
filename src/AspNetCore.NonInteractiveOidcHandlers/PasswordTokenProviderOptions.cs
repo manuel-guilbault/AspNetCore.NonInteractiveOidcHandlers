@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using AspNetCore.NonInteractiveOidcHandlers.Infrastructure;
@@ -23,7 +23,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
         /// Specifies the method how to retrieve the username and the password to use to request an access token (required).
         /// If this function returns null, the request is considered unauthenticated and no access token will be passed to the HTTP request.
         /// </summary>
-        public Func<(string userName, string password)?> UserCredentialsRetriever { get; set; }
+        public Func<IServiceProvider, (string userName, string password)?> UserCredentialsRetriever { get; set; }
 
         /// <summary>
         /// Extra parameters passed to the token request.

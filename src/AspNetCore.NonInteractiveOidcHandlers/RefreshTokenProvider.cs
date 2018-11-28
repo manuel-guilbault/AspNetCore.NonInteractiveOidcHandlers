@@ -14,20 +14,23 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 	{
 		private readonly ILogger<RefreshTokenProvider> _logger;
 		private readonly RefreshTokenProviderOptions _options;
+		private readonly IServiceProvider _serviceProvider;
 
 		public RefreshTokenProvider(
 			ILogger<RefreshTokenProvider> logger,
 			IDistributedCache cache,
-			RefreshTokenProviderOptions options)
+			RefreshTokenProviderOptions options,
+			IServiceProvider serviceProvider)
 			: base(logger, cache, options)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
+			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 		}
 
 		public override async Task<TokenResponse> GetTokenAsync(CancellationToken cancellationToken)
 		{
-			var refreshToken = _options.RefreshTokenRetriever();
+			var refreshToken = _options.RefreshTokenRetriever(_serviceProvider);
 			if (refreshToken.IsMissing())
 			{
 				_logger.LogTrace($"No current refresh token.");

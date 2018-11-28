@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using AspNetCore.NonInteractiveOidcHandlers.Infrastructure;
@@ -23,7 +23,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
         /// Specifies the method how to retrieve the refresh token to use to request an access token (required).
         /// If this function returns null, the request is considered unauthenticated and no access token will be passed to the HTTP request.
         /// </summary>
-        public Func<string> RefreshTokenRetriever { get; set; }
+        public Func<IServiceProvider, string> RefreshTokenRetriever { get; set; }
 
         internal ConcurrentDictionary<string, AsyncLazy<TokenResponse>> LazyTokens { get; set; }
 

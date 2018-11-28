@@ -21,7 +21,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 			o.ClientId = ClientId;
 			o.ClientSecret = ClientSecret;
 			o.Scope = Scope;
-			o.UserCredentialsRetriever = () => (UserName, Password);
+			o.UserCredentialsRetriever = (_) => (UserName, Password);
 		};
 
 		[Fact]

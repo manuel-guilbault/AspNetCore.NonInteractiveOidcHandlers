@@ -70,8 +70,8 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 			}
 			finally
 			{
-				// If caching is on and it succeeded, the delegated token is now in the cache.
-				// If caching is off and it succeeded, the delegated token will be discarded.
+				// If caching is on and it succeeded, the delegated token will be cached.
+				// If caching is off and it succeeded, the delegated token will be discarded after this HTTP request.
 				// Either way, we want to remove the temporary store of delegated token for this token because it is only intended for de-duping fetch requests
 				_options.LazyTokens.TryRemove(inboundToken, out _);
 			}

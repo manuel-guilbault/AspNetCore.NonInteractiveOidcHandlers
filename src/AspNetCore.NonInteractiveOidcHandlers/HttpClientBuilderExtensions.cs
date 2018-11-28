@@ -78,7 +78,8 @@ namespace Microsoft.Extensions.DependencyInjection
 					new PasswordTokenProvider(
 						sp.GetRequiredService<ILogger<PasswordTokenProvider>>(),
 						sp.GetService<IDistributedCache>(),
-						options));
+						options,
+						sp));
 			});
 		}
 
@@ -101,7 +102,8 @@ namespace Microsoft.Extensions.DependencyInjection
 					new RefreshTokenProvider(
 						sp.GetRequiredService<ILogger<RefreshTokenProvider>>(),
 						sp.GetService<IDistributedCache>(),
-						options));
+						options,
+						sp));
 			});
 		}
 	}

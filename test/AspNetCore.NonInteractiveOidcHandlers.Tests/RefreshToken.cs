@@ -18,7 +18,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 			o.TokenEndpoint = "https://authority/connect/token";
 			o.ClientId = ClientId;
 			o.ClientSecret = ClientSecret;
-			o.RefreshTokenRetriever = () => RefreshToken;
+			o.RefreshTokenRetriever = (_) => RefreshToken;
 		};
 
 		[Fact]

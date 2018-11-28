@@ -13,20 +13,23 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 	{
 		private readonly ILogger<PasswordTokenProvider> _logger;
 		private readonly PasswordTokenProviderOptions _options;
+		private readonly IServiceProvider _serviceProvider;
 
 		public PasswordTokenProvider(
 			ILogger<PasswordTokenProvider> logger,
 			IDistributedCache cache,
-			PasswordTokenProviderOptions options)
+			PasswordTokenProviderOptions options,
+			IServiceProvider serviceProvider)
 			: base(logger, cache, options)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
+			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 		}
 
 		public override async Task<TokenResponse> GetTokenAsync(CancellationToken cancellationToken)
 		{
-			var userCredentials = _options.UserCredentialsRetriever();
+			var userCredentials = _options.UserCredentialsRetriever(_serviceProvider);
 			if (!userCredentials.HasValue)
 			{
 				_logger.LogTrace($"No current username/password.");
