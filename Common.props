@@ -28,7 +28,7 @@
 		<GenerateSerializationAssemblies>false</GenerateSerializationAssemblies>
 		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-		<DebugType>embedded</DebugType>
+		<!--<DebugType>embedded</DebugType>-->
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 		<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
 	</PropertyGroup>
