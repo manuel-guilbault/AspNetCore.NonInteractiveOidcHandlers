@@ -26,19 +26,10 @@ steps:
 #  inputs:
 #    version: 2.1.500
 
-- powershell: |
-   If ($env:BUILD_BUILDNUMBER -match "^\d+\.\d+\.\d+\.\d+$") {
-       $version = $env:BUILD_BUILDNUMBER
-   } Else {
-       $version = $env:BUILD_BUILDNUMBER -replace "^.+\.(\d+)$", '1.0.0.$1'
-   }
-   $buildRevision = $env:BUILD_BUILDNUMBER.Split(".")[3]
-   Write-Host "##vso[task.setvariable variable=Build.Revision]$buildRevision"
-   Write-Host "##vso[task.setvariable variable=Version]$version"
-   Write-Host "Computed Version: $version"
-   Write-Host "Computed Build.Revision: $buildRevision"
+- powershell: ./'tools\extract-version-number.ps1'
+  arguments: '-BuilderNumber $env:BUILD_BUILDNUMBER'
   failOnStderr: true
-  displayName: 'Compute version'
+  displayName: 'Extract version numbers'
   
 - script: dotnet build --configuration $(buildConfiguration) -p:Version=$(version)
   displayName: 'dotnet build $(buildConfiguration)'
@@ -67,7 +58,7 @@ steps:
     command: custom
     projects: 'src\AspNetCore.NonInteractiveOidcHandlers\AspNetCore.NonInteractiveOidcHandlers.csproj'
     custom: pack
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) -p:Version=$(Build.BuildNumber) -p:PackageVersion=$(Build.SourceBranchName)-pre.$(Build.Revision)'
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) -p:Version=$(Build.BuildNumber) -p:PackageVersion=$(Build.SourceBranchName)-pre.$(BuildRevision)'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet pack release package'
@@ -79,3 +70,15 @@ steps:
   
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
+
+- task: CopyFiles@2
+  displayName: 'Stage tools'
+  inputs:
+    SourceFolder: tools
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    CleanTargetFolder: true
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: tools'
+  inputs:
+    ArtifactName: tools

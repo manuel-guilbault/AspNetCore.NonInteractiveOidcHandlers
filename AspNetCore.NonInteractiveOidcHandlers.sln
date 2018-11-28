@@ -10,14 +10,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		azure-pipelines.yml = azure-pipelines.yml
+		Common.props = Common.props
 		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D00E4DF4-5567-44DC-AD3F-EF7619908CA5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.NonInteractiveOidcHandlers.Tests", "test\AspNetCore.NonInteractiveOidcHandlers.Tests\AspNetCore.NonInteractiveOidcHandlers.Tests.csproj", "{3F282995-EB61-4D23-9FFA-714AF0AAD4AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.NonInteractiveOidcHandlers.Tests", "test\AspNetCore.NonInteractiveOidcHandlers.Tests\AspNetCore.NonInteractiveOidcHandlers.Tests.csproj", "{3F282995-EB61-4D23-9FFA-714AF0AAD4AB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C1AC63E2-CB01-4974-BCD8-0815A29EF685}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{4A291F84-917F-4EEB-8F85-80ABE60974A9}"
+	ProjectSection(SolutionItems) = preProject
+		tools\create-github-release.ps1 = tools\create-github-release.ps1
+		tools\extract-version-number.ps1 = tools\extract-version-number.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
