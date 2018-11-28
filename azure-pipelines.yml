@@ -26,11 +26,14 @@ steps:
 #  inputs:
 #    version: 2.1.500
 
-- powershell: ./'tools\extract-version-number.ps1'
-  arguments: '-BuilderNumber $env:BUILD_BUILDNUMBER'
-  failOnStderr: true
+- task: PowerShell@2
+  inputs:
+    targetType: 'filePath'
+    filePath: 'tools\extract-version-number.ps1'
+    arguments: '-BuilderNumber $(Build.BuildNumber)'
+    failOnStderr: true
   displayName: 'Extract version numbers'
-  
+
 - script: dotnet build --configuration $(buildConfiguration) -p:Version=$(version)
   displayName: 'dotnet build $(buildConfiguration)'
  
