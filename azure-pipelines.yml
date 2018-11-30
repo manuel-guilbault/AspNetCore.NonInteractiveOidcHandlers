@@ -57,6 +57,7 @@ steps:
     
 - task: DotNetCoreCLI@2
   displayName: 'dotnet pack pre-release package'
+  condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix/')))
   inputs:
     command: custom
     projects: 'src\AspNetCore.NonInteractiveOidcHandlers\AspNetCore.NonInteractiveOidcHandlers.csproj'
@@ -65,6 +66,7 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet pack release package'
+  condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix/')))
   inputs:
     command: custom
     projects: 'src\AspNetCore.NonInteractiveOidcHandlers\AspNetCore.NonInteractiveOidcHandlers.csproj'
@@ -73,9 +75,11 @@ steps:
   
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
+  condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix/')))
 
 - task: CopyFiles@2
   displayName: 'Stage tools'
+  condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix/')))
   inputs:
     SourceFolder: tools
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
@@ -83,5 +87,6 @@ steps:
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: tools'
+  condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix/')))
   inputs:
     ArtifactName: tools
