@@ -6,6 +6,8 @@ authentication scenarii using [Open ID Connect](https://openid.net/connect/).
 > Some of the code in this library was directly copied from the 
 > [IdentityModel.AspNetCore.OAuth2Introspection](https://github.com/IdentityModel/IdentityModel.AspNetCore.OAuth2Introspection) library.
 
+[![Build Status](https://manuelguilbault.visualstudio.com/AspNetCore.NonInteractiveOidcHandlers/_apis/build/status/manuel-guilbault.AspNetCore.NonInteractiveOidcHandlers)](https://manuelguilbault.visualstudio.com/AspNetCore.NonInteractiveOidcHandlers/_build/latest?definitionId=2)
+
 ## Asp .NET Core
 
 This library exposes a bunch of extension methods on `IHttpClientBuilder` to 
