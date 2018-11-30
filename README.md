@@ -139,10 +139,11 @@ The `password` grant type requires a username and a password, and produces an ac
 the matching user. It is the least secure grant type and should be used only when nothing else
 can.
 
-The option's `UserCredentialsRetriever` property must be set to a lambda which returns a 
-`(string userName, string password)?` nullable tuple. The delegating handler will call this
-lambda before trying to acquire a token. A `null` tuple can be returned, in which case the
-delegating handler won't request any token and won't authenticate the request.
+The option's `UserCredentialsRetriever` property must be set to a lambda which receives an
+`IServiceProvider` and returns a `(string userName, string password)?` nullable tuple. The 
+delegating handler will call this lambda before trying to acquire a token. A `null` tuple can 
+be returned, in which case the delegating handler won't request any token and won't authenticate 
+the request.
 
 ```csharp
 services
@@ -153,7 +154,7 @@ services
     options.ClientId = "my-client-id";
     options.ClientSecret = "my-client-secret";
     options.Scope = "my-api-scope";
-    options.UserCredentialsRetriever = () => ("my-username", "my-password");
+    options.UserCredentialsRetriever = (serviceProvider) => ("my-username", "my-password");
   })
 ;
 ```
@@ -163,10 +164,10 @@ services
 The `refresh_token` grant type requires a refresh token that was previously produced for a
 specific user, scope and client, and produces an access token for its user.
 
-The options's `RefreshTokenRetriever` property must be set to a lambda which returns a
-refresh token as a `string`. The delegating handler will call this lambda before trying to 
-acquire a token. A `null` value can be returned, in which case the delegating handler won't
-request any token and won't authenticate the request.
+The options's `RefreshTokenRetriever` property must be set to a lambda which receives an
+`IServiceProvider` and returns a refresh token as a `string`. The delegating handler will 
+call this lambda before trying to  acquire a token. A `null` value can be returned, in which 
+case the delegating handler won't request any token and won't authenticate the request.
 
 ```csharp
 services
@@ -176,7 +177,7 @@ services
     options.Authority = "https://my-oidc-server";
     options.ClientId = "my-client-id";
     options.ClientSecret = "my-client-secret";
-    options.RefreshTokenRetriever = () => "my-refresh-token";
+    options.RefreshTokenRetriever = (serviceProvider) => "my-refresh-token";
   })
 ;
 ```
@@ -191,7 +192,7 @@ APIs require different scopes.
 This use case is described in the Identity Server 
 [documentation](https://identityserver4.readthedocs.io/en/release/topics/extension_grants.html#example-simple-delegation-using-an-extension-grant).
 
-In addition to the delegating handler, the `AddOidcTokenDelegation` extension method will
+In addition to registering the delegating handler, the `AddOidcTokenDelegation` extension method will
 make sure the `IHttpContextAccessor` service is registered, as it uses the current `IHttpContext` to
 look for an inbound `Bearer` token in the incoming request's `Authorization` header. If no inbound
 token is found, the delegating handler won't request any token and won't authenticate the outgoing
