@@ -8,15 +8,15 @@ using Microsoft.Extensions.Logging;
 
 namespace AspNetCore.NonInteractiveOidcHandlers
 {
-	public class ClientCredentialsTokenProvider: CachingTokenProvider, ITokenProvider
+	public class ClientCredentialsTokenHandler: CachingTokenHandler
 	{
-		private readonly ILogger<ClientCredentialsTokenProvider> _logger;
-		private readonly ClientCredentialsTokenProviderOptions _options;
+		private readonly ILogger<ClientCredentialsTokenHandler> _logger;
+		private readonly ClientCredentialsTokenHandlerOptions _options;
 
-		public ClientCredentialsTokenProvider(
-			ILogger<ClientCredentialsTokenProvider> logger,
+		public ClientCredentialsTokenHandler(
+			ILogger<ClientCredentialsTokenHandler> logger,
 			IDistributedCache cache,
-			ClientCredentialsTokenProviderOptions options)
+			ClientCredentialsTokenHandlerOptions options)
 			: base(logger, cache, options)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

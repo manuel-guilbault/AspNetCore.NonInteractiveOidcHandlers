@@ -15,7 +15,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 		private const string UserName = "user-name";
 		private const string Password = "password";
 
-		private readonly Action<PasswordTokenProviderOptions> _options = (o) =>
+		private readonly Action<PasswordTokenHandlerOptions> _options = (o) =>
 		{
 			o.TokenEndpoint = "https://authority/connect/token";
 			o.ClientId = ClientId;

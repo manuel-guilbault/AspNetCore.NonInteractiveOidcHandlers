@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using AspNetCore.NonInteractiveOidcHandlers.Infrastructure;
 using IdentityModel.Client;
 
 namespace AspNetCore.NonInteractiveOidcHandlers
 {
-    internal static class TokenProviderOptionsExtensions
+    internal static class TokenHandlerOptionsExtensions
     {
-        public static async Task<string> GetTokenEndpointAsync(this TokenProviderOptions options)
+        public static async Task<string> GetTokenEndpointAsync(this TokenHandlerOptions options)
         {
             if (options.TokenEndpoint.IsPresent())
             {
@@ -18,7 +18,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
             return endpoint;
         }
 
-        public static async Task<string> GetTokenEndpointFromDiscoveryDocument(this TokenProviderOptions options)
+        public static async Task<string> GetTokenEndpointFromDiscoveryDocument(this TokenHandlerOptions options)
         {
             var httpClient = options.AuthorityHttpClientAccessor.Invoke();
 

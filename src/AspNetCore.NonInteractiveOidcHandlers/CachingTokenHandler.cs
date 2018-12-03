@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using AspNetCore.NonInteractiveOidcHandlers.Infrastructure;
@@ -8,14 +9,14 @@ using Microsoft.Extensions.Logging;
 
 namespace AspNetCore.NonInteractiveOidcHandlers
 {
-	public abstract class CachingTokenProvider: ITokenProvider
+	public abstract class CachingTokenHandler: DelegatingHandler
 	{
-		private readonly ILogger<CachingTokenProvider> _logger;
+		private readonly ILogger<CachingTokenHandler> _logger;
 		private readonly IDistributedCache _cache;
 		private readonly CachingOptions _options;
 
-		protected CachingTokenProvider(
-			ILogger<CachingTokenProvider> logger, 
+		protected CachingTokenHandler(
+			ILogger<CachingTokenHandler> logger, 
 			IDistributedCache cache, 
 			CachingOptions options)
 		{
@@ -24,11 +25,11 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 		}
 		
-		protected async Task<TokenResponse> GetTokenAsync(string cacheKey, Func<CancellationToken, Task<TokenResponse>> getToken, CancellationToken cancellationToken)
+		protected async Task<TokenResponse> GetTokenAsync(string cacheKey, Func<CancellationToken, Task<TokenResponse>> requestToken, CancellationToken cancellationToken)
 		{
 			if (!_options.EnableCaching)
 			{
-				return await getToken(cancellationToken).ConfigureAwait(false);
+				return await requestToken(cancellationToken).ConfigureAwait(false);
 			}
 
 			var prefixedCacheKey = _options.CacheKeyPrefix + _options.HttpClientName + ":" + cacheKey;
@@ -42,7 +43,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 
 			_logger.LogTrace("Token is not cached.");
 
-			var tokenResponse = await getToken(cancellationToken).ConfigureAwait(false);
+			var tokenResponse = await requestToken(cancellationToken).ConfigureAwait(false);
 			await _cache
 				.SetTokenAsync(prefixedCacheKey, tokenResponse, _options, cancellationToken)
 				.ConfigureAwait(false);
@@ -50,5 +51,16 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 		}
 
 		public abstract Task<TokenResponse> GetTokenAsync(CancellationToken cancellationToken);
+
+		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+		{
+			var token = await GetTokenAsync(cancellationToken);
+			if (token != null && token.AccessToken.IsPresent())
+			{
+				request.SetBearerToken(token.AccessToken);
+			}
+
+			return await base.SendAsync(request, cancellationToken);
+		}
 	}
 }

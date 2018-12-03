@@ -3,22 +3,23 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AspNetCore.NonInteractiveOidcHandlers.Infrastructure;
+using IdentityModel;
 using IdentityModel.Client;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 
 namespace AspNetCore.NonInteractiveOidcHandlers
 {
-	public class PasswordTokenProvider: CachingTokenProvider, ITokenProvider
+	public class RefreshTokenHandler: CachingTokenHandler
 	{
-		private readonly ILogger<PasswordTokenProvider> _logger;
-		private readonly PasswordTokenProviderOptions _options;
+		private readonly ILogger<RefreshTokenHandler> _logger;
+		private readonly RefreshTokenHandlerOptions _options;
 		private readonly IServiceProvider _serviceProvider;
 
-		public PasswordTokenProvider(
-			ILogger<PasswordTokenProvider> logger,
+		public RefreshTokenHandler(
+			ILogger<RefreshTokenHandler> logger,
 			IDistributedCache cache,
-			PasswordTokenProviderOptions options,
+			RefreshTokenHandlerOptions options,
 			IServiceProvider serviceProvider)
 			: base(logger, cache, options)
 		{
@@ -29,21 +30,20 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 
 		public override async Task<TokenResponse> GetTokenAsync(CancellationToken cancellationToken)
 		{
-			var userCredentials = _options.UserCredentialsRetriever(_serviceProvider);
-			if (!userCredentials.HasValue)
+			var refreshToken = _options.RefreshTokenRetriever(_serviceProvider);
+			if (refreshToken.IsMissing())
 			{
-				_logger.LogTrace($"No current username/password.");
+				_logger.LogTrace($"No current refresh token.");
 				return null;
 			}
 
-			var (userName, password) = userCredentials.Value;
-			return await GetTokenAsync($"password:{userName}", ct => AcquireToken(userName, password, ct), cancellationToken)
+			return await GetTokenAsync($"refresh_token:{refreshToken.ToSha512()}", ct => AcquireToken(refreshToken, ct), cancellationToken)
 				.ConfigureAwait(false);
 		}
 
-		private async Task<TokenResponse> AcquireToken(string userName, string password, CancellationToken cancellationToken)
+		private async Task<TokenResponse> AcquireToken(string refreshToken, CancellationToken cancellationToken)
 		{
-			var lazyToken = _options.LazyTokens.GetOrAdd(userName, _ => new AsyncLazy<TokenResponse>(() => RequestToken(userName, password)));
+			var lazyToken = _options.LazyTokens.GetOrAdd(refreshToken, rt => new AsyncLazy<TokenResponse>(() => RequestToken(rt)));
 			try
 			{
 				var tokenResponse = await lazyToken.Value.ConfigureAwait(false);
@@ -61,28 +61,26 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 			}
 			finally
 			{
-				// If caching is on and it succeeded, the delegated token is now in the cache.
-				// If caching is off and it succeeded, the delegated token will be discarded.
-				// Either way, we want to remove the temporary store of delegated token for this token because it is only intended for de-duping fetch requests
-				_options.LazyTokens.TryRemove(userName, out _);
+				// If caching is on and it succeeded, the token is now in the cache.
+				// If caching is off and it succeeded, the token will be discarded.
+				// Either way, we want to remove the temporary store of token for this token because it is only intended for de-duping fetch requests
+				_options.LazyTokens.TryRemove(refreshToken, out _);
 			}
 		}
 
-		private async Task<TokenResponse> RequestToken(string userName, string password)
+		private async Task<TokenResponse> RequestToken(string refreshToken)
 		{
 			var httpClient = _options.AuthorityHttpClientAccessor();
-			var tokenRequest = new PasswordTokenRequest
+			var tokenRequest = new RefreshTokenRequest
 			{
 				Address = await _options.GetTokenEndpointAsync().ConfigureAwait(false),
 				GrantType = _options.GrantType,
 				ClientId = _options.ClientId,
 				ClientSecret = _options.ClientSecret,
-				Scope = _options.Scope,
-				UserName = userName,
-				Password = password,
+				RefreshToken = refreshToken,
 				Parameters = _options.ExtraTokenParameters ?? new Dictionary<string, string>(),
 			};
-			var tokenResponse = await httpClient.RequestPasswordTokenAsync(tokenRequest).ConfigureAwait(false);
+			var tokenResponse = await httpClient.RequestRefreshTokenAsync(tokenRequest).ConfigureAwait(false);
 			return tokenResponse;
 		}
 	}

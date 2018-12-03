@@ -13,7 +13,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 		private const string ClientSecret = "client-secret";
 		private const string RefreshToken = "refresh-token";
 
-		private readonly Action<RefreshTokenProviderOptions> _options = (o) =>
+		private readonly Action<RefreshTokenHandlerOptions> _options = (o) =>
 		{
 			o.TokenEndpoint = "https://authority/connect/token";
 			o.ClientId = ClientId;

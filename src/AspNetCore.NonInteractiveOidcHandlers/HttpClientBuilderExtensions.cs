@@ -11,99 +11,95 @@ namespace Microsoft.Extensions.DependencyInjection
 {
 	public static class HttpClientBuilderExtensions
 	{
-		public static IHttpClientBuilder AddOidcTokenDelegation(this IHttpClientBuilder builder, Action<DelegationTokenProviderOptions> configureOptions)
+		public static IHttpClientBuilder AddOidcTokenDelegation(this IHttpClientBuilder builder, Action<DelegationTokenHandlerOptions> configureOptions)
 		{
 			if (configureOptions == null) throw new ArgumentNullException(nameof(configureOptions));
 
 			builder.Services
 				.AddHttpContextAccessor()
 				.Configure(builder.Name, configureOptions)
-				.AddPostConfigure<DelegationTokenProviderOptions, PostConfigureTokenProviderOptions<DelegationTokenProviderOptions>>()
-				.AddPostConfigure<DelegationTokenProviderOptions, PostConfigureDelegationTokenProviderOptions>();
+				.AddPostConfigure<DelegationTokenHandlerOptions, PostConfigureTokenHandlerOptions<DelegationTokenHandlerOptions>>()
+				.AddPostConfigure<DelegationTokenHandlerOptions, PostConfigureDelegationTokenHandlerOptions>();
 			
 			var instanceName = builder.Name;
 			return builder.AddHttpMessageHandler(sp =>
 			{
-				var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<DelegationTokenProviderOptions>>();
+				var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<DelegationTokenHandlerOptions>>();
 				var options = optionsMonitor.Get(instanceName);
 				
-				return new BearerTokenHandler(
-					new DelegationTokenProvider(
-						sp.GetRequiredService<ILogger<DelegationTokenProvider>>(),
-						sp.GetRequiredService<IHttpContextAccessor>(),
-						sp.GetService<IDistributedCache>(),
-						options));
+				return new DelegationTokenHandler(
+					sp.GetRequiredService<ILogger<DelegationTokenHandler>>(),
+					sp.GetRequiredService<IHttpContextAccessor>(),
+					sp.GetService<IDistributedCache>(),
+					options);
 			});
 		}
 
-		public static IHttpClientBuilder AddOidcClientCredentials(this IHttpClientBuilder builder, Action<ClientCredentialsTokenProviderOptions> configureOptions)
+		public static IHttpClientBuilder AddOidcClientCredentials(this IHttpClientBuilder builder, Action<ClientCredentialsTokenHandlerOptions> configureOptions)
 		{
 			if (configureOptions == null) throw new ArgumentNullException(nameof(configureOptions));
 
 			builder.Services
 				.Configure(builder.Name, configureOptions)
-				.AddPostConfigure<ClientCredentialsTokenProviderOptions, PostConfigureTokenProviderOptions<ClientCredentialsTokenProviderOptions>>()
-				.AddPostConfigure<ClientCredentialsTokenProviderOptions, PostConfigureClientCredentialsTokenProviderOptions>();
+				.AddPostConfigure<ClientCredentialsTokenHandlerOptions, PostConfigureTokenHandlerOptions<ClientCredentialsTokenHandlerOptions>>()
+				.AddPostConfigure<ClientCredentialsTokenHandlerOptions, PostConfigureClientCredentialsTokenHandlerOptions>();
 
 			var instanceName = builder.Name;
 			return builder.AddHttpMessageHandler(sp =>
 			{
-				var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<ClientCredentialsTokenProviderOptions>>();
+				var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<ClientCredentialsTokenHandlerOptions>>();
 				var options = optionsMonitor.Get(instanceName);
 
-				return new BearerTokenHandler(
-					new ClientCredentialsTokenProvider(
-						sp.GetRequiredService<ILogger<ClientCredentialsTokenProvider>>(),
-						sp.GetService<IDistributedCache>(),
-						options));
+				return new ClientCredentialsTokenHandler(
+					sp.GetRequiredService<ILogger<ClientCredentialsTokenHandler>>(),
+					sp.GetService<IDistributedCache>(),
+					options);
 			});
 		}
 
-		public static IHttpClientBuilder AddOidcPassword(this IHttpClientBuilder builder, Action<PasswordTokenProviderOptions> configureOptions)
+		public static IHttpClientBuilder AddOidcPassword(this IHttpClientBuilder builder, Action<PasswordTokenHandlerOptions> configureOptions)
 		{
 			if (configureOptions == null) throw new ArgumentNullException(nameof(configureOptions));
 
 			builder.Services
 				.Configure(builder.Name, configureOptions)
-				.AddPostConfigure<PasswordTokenProviderOptions, PostConfigureTokenProviderOptions<PasswordTokenProviderOptions>>()
-				.AddPostConfigure<PasswordTokenProviderOptions, PostConfigurePasswordTokenProviderOptions>();
+				.AddPostConfigure<PasswordTokenHandlerOptions, PostConfigureTokenHandlerOptions<PasswordTokenHandlerOptions>>()
+				.AddPostConfigure<PasswordTokenHandlerOptions, PostConfigurePasswordTokenHandlerOptions>();
 
 			var instanceName = builder.Name;
 			return builder.AddHttpMessageHandler(sp =>
 			{
-				var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<PasswordTokenProviderOptions>>();
+				var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<PasswordTokenHandlerOptions>>();
 				var options = optionsMonitor.Get(instanceName);
 
-				return new BearerTokenHandler(
-					new PasswordTokenProvider(
-						sp.GetRequiredService<ILogger<PasswordTokenProvider>>(),
-						sp.GetService<IDistributedCache>(),
-						options,
-						sp));
+				return new PasswordTokenHandler(
+					sp.GetRequiredService<ILogger<PasswordTokenHandler>>(),
+					sp.GetService<IDistributedCache>(),
+					options,
+					sp);
 			});
 		}
 
-		public static IHttpClientBuilder AddOidcRefreshToken(this IHttpClientBuilder builder, Action<RefreshTokenProviderOptions> configureOptions)
+		public static IHttpClientBuilder AddOidcRefreshToken(this IHttpClientBuilder builder, Action<RefreshTokenHandlerOptions> configureOptions)
 		{
 			if (configureOptions == null) throw new ArgumentNullException(nameof(configureOptions));
 
 			builder.Services
 				.Configure(builder.Name, configureOptions)
-				.AddPostConfigure<RefreshTokenProviderOptions, PostConfigureTokenProviderOptions<RefreshTokenProviderOptions>>()
-				.AddPostConfigure<RefreshTokenProviderOptions, PostConfigureRefreshTokenProviderOptions>();
+				.AddPostConfigure<RefreshTokenHandlerOptions, PostConfigureTokenHandlerOptions<RefreshTokenHandlerOptions>>()
+				.AddPostConfigure<RefreshTokenHandlerOptions, PostConfigureRefreshTokenHandlerOptions>();
 
 			var instanceName = builder.Name;
 			return builder.AddHttpMessageHandler(sp =>
 			{
-				var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<RefreshTokenProviderOptions>>();
+				var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<RefreshTokenHandlerOptions>>();
 				var options = optionsMonitor.Get(instanceName);
 
-				return new BearerTokenHandler(
-					new RefreshTokenProvider(
-						sp.GetRequiredService<ILogger<RefreshTokenProvider>>(),
-						sp.GetService<IDistributedCache>(),
-						options,
-						sp));
+				return new RefreshTokenHandler(
+					sp.GetRequiredService<ILogger<RefreshTokenHandler>>(),
+					sp.GetService<IDistributedCache>(),
+					options,
+					sp);
 			});
 		}
 	}

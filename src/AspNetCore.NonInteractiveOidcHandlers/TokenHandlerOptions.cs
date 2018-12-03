@@ -7,8 +7,8 @@ using IdentityModel.Client;
 
 namespace AspNetCore.NonInteractiveOidcHandlers
 {
-    public class TokenProviderOptions: CachingOptions
-    {
+    public class TokenHandlerOptions: CachingOptions, IValidatableOptions
+	{
         /// <summary>
         /// Sets the base-path of the token provider.
         /// If set, the OpenID Connect discovery document will be used to find the token endpoint.
@@ -42,26 +42,13 @@ namespace AspNetCore.NonInteractiveOidcHandlers
         public string TokenEndpoint { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="TokenProviderEvents"/> used to handle token request events.
+        /// Gets or sets the <see cref="TokenHandlerEvents"/> used to handle token request events.
         /// </summary>
-        public TokenProviderEvents Events { get; set; } = new TokenProviderEvents();
+        public TokenHandlerEvents Events { get; set; } = new TokenHandlerEvents();
 
         internal DiscoveryCache DiscoveryCache { get; set; }
 
-        /// <summary>
-        /// Check that the options are valid. Should throw an InvalidOperationException if things are not ok.
-        /// </summary>
-        /// <exception cref="InvalidOperationException"></exception>
-        public void Validate()
-        {
-            var validationErrors = GetValidationErrors().ToList();
-            if (validationErrors.Any())
-            {
-                throw new InvalidOperationException($"Options are not valid:{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, validationErrors)}");
-            }
-        }
-
-        protected virtual IEnumerable<string> GetValidationErrors()
+        public virtual IEnumerable<string> GetValidationErrors()
         {
             if (Authority.IsMissing() && TokenEndpoint.IsMissing())
             {

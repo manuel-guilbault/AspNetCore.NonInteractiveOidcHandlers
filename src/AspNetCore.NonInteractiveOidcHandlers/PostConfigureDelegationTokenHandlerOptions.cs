@@ -5,9 +5,9 @@ using Microsoft.Extensions.Options;
 
 namespace AspNetCore.NonInteractiveOidcHandlers
 {
-    public class PostConfigureRefreshTokenProviderOptions: IPostConfigureOptions<RefreshTokenProviderOptions>
+    internal class PostConfigureDelegationTokenHandlerOptions: IPostConfigureOptions<DelegationTokenHandlerOptions>
     {
-        public void PostConfigure(string name, RefreshTokenProviderOptions options)
+        public void PostConfigure(string name, DelegationTokenHandlerOptions options)
         {
             options.LazyTokens = new ConcurrentDictionary<string, AsyncLazy<TokenResponse>>();
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Net.Http;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -28,6 +29,8 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests.Util
 					{
 						services.AddDistributedMemoryCache();
 					}
+
+					services.AddTransient<IAuthenticationService, AuthenticationServiceMock>();
 
 					foreach (var downstreamApi in downstreamApis)
 					{

@@ -10,7 +10,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 {
 	public class TokenDelegation
 	{
-		private readonly Action<DelegationTokenProviderOptions> _options = (o) =>
+		private readonly Action<DelegationTokenHandlerOptions> _options = (o) =>
 		{
 			o.TokenEndpoint = "https://authority/connect/token";
 			o.ClientId = "upstream-api";

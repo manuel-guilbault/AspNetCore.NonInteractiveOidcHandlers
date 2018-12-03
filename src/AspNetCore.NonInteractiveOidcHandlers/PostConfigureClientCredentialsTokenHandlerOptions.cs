@@ -4,9 +4,9 @@ using Microsoft.Extensions.Options;
 
 namespace AspNetCore.NonInteractiveOidcHandlers
 {
-	internal class PostConfigureClientCredentialsTokenProviderOptions: IPostConfigureOptions<ClientCredentialsTokenProviderOptions>
+	internal class PostConfigureClientCredentialsTokenHandlerOptions: IPostConfigureOptions<ClientCredentialsTokenHandlerOptions>
 	{
-		public void PostConfigure(string name, ClientCredentialsTokenProviderOptions options)
+		public void PostConfigure(string name, ClientCredentialsTokenHandlerOptions options)
 		{
 			options.TokenMutex = new AsyncMutex<TokenResponse>();
 

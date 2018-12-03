@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using IdentityModel.Client;
 
 namespace AspNetCore.NonInteractiveOidcHandlers
 {
-    public class TokenProviderEvents
+    public class TokenHandlerEvents
     {
         public Func<TokenResponse, Task> OnTokenAcquired { get; set; } = tokenResponse => Task.CompletedTask;
 

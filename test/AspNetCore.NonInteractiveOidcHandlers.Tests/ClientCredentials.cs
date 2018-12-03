@@ -13,7 +13,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 		private const string ClientSecret = "client-secret";
 		private const string Scope = "downstream-api";
 
-		private readonly Action<ClientCredentialsTokenProviderOptions> _options = (o) =>
+		private readonly Action<ClientCredentialsTokenHandlerOptions> _options = (o) =>
 		{
 			o.TokenEndpoint = "https://authority/connect/token";
 			o.ClientId = ClientId;

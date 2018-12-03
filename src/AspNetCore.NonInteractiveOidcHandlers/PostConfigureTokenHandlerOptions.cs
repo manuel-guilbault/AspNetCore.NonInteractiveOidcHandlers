@@ -6,12 +6,12 @@ using Microsoft.Extensions.Options;
 
 namespace AspNetCore.NonInteractiveOidcHandlers
 {
-	public class PostConfigureTokenProviderOptions<TOptions>: IPostConfigureOptions<TOptions>
-		where TOptions: TokenProviderOptions
+	public class PostConfigureTokenHandlerOptions<TOptions>: IPostConfigureOptions<TOptions>
+		where TOptions: TokenHandlerOptions
 	{
 		private readonly IDistributedCache _cache;
 
-		public PostConfigureTokenProviderOptions(IDistributedCache cache = null)
+		public PostConfigureTokenHandlerOptions(IDistributedCache cache = null)
 		{
 			_cache = cache;
 		}

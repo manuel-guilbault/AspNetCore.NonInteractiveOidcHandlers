@@ -11,17 +11,17 @@ using Microsoft.Extensions.Logging;
 
 namespace AspNetCore.NonInteractiveOidcHandlers
 {
-	public class DelegationTokenProvider: CachingTokenProvider, ITokenProvider
+	public class DelegationTokenHandler: CachingTokenHandler
 	{
-		private readonly ILogger<DelegationTokenProvider> _logger;
+		private readonly ILogger<DelegationTokenHandler> _logger;
 		private readonly IHttpContextAccessor _httpContextAccessor;
-		private readonly DelegationTokenProviderOptions _options;
+		private readonly DelegationTokenHandlerOptions _options;
 
-		public DelegationTokenProvider(
-			ILogger<DelegationTokenProvider> logger, 
+		public DelegationTokenHandler(
+			ILogger<DelegationTokenHandler> logger, 
 			IHttpContextAccessor httpContextAccessor,
 			IDistributedCache cache,
-			DelegationTokenProviderOptions options)
+			DelegationTokenHandlerOptions options)
 			: base(logger, cache, options)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -38,7 +38,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 				return null;
 			}
 
-			var inboundToken = _options.TokenRetriever(httpContext.Request);
+			var inboundToken = await _options.TokenRetriever(httpContext);
 			if (inboundToken.IsMissing())
 			{
 				_logger.LogInformation($"No access token in current request.");
