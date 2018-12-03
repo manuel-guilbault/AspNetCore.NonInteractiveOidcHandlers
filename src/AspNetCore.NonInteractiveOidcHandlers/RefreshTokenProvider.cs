@@ -43,7 +43,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 
 		private async Task<TokenResponse> AcquireToken(string refreshToken, CancellationToken cancellationToken)
 		{
-			var lazyToken = _options.LazyTokens.GetOrAdd(refreshToken, _ => new AsyncLazy<TokenResponse>(() => RequestToken(refreshToken)));
+			var lazyToken = _options.LazyTokens.GetOrAdd(refreshToken, rt => new AsyncLazy<TokenResponse>(() => RequestToken(rt)));
 			try
 			{
 				var tokenResponse = await lazyToken.Value.ConfigureAwait(false);
