@@ -11,6 +11,33 @@ namespace Microsoft.Extensions.DependencyInjection
 {
 	public static class HttpClientBuilderExtensions
 	{
+		public static IHttpClientBuilder AddAccessTokenPassThrough(this IHttpClientBuilder builder, Action<PassThroughTokenHandlerOptions> configureOptions)
+		{
+			if (configureOptions == null) throw new ArgumentNullException(nameof(configureOptions));
+
+			builder.Services.Configure(builder.Name, configureOptions);
+
+			return builder.AddAccessTokenPassThrough();
+		}
+
+		public static IHttpClientBuilder AddAccessTokenPassThrough(this IHttpClientBuilder builder)
+		{
+			builder.Services
+				.AddHttpContextAccessor()
+				.AddPostConfigure<PassThroughTokenHandlerOptions, PostConfigurePassThroughAccessTokenHandlerOptions>();
+
+			var instanceName = builder.Name;
+			return builder.AddHttpMessageHandler(sp =>
+			{
+				var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<PassThroughTokenHandlerOptions>>();
+				var options = optionsMonitor.Get(instanceName);
+
+				return new PassThroughTokenHandler(
+					sp.GetRequiredService<IHttpContextAccessor>(),
+					options);
+			});
+		}
+
 		public static IHttpClientBuilder AddOidcTokenDelegation(this IHttpClientBuilder builder, Action<DelegationTokenHandlerOptions> configureOptions)
 		{
 			if (configureOptions == null) throw new ArgumentNullException(nameof(configureOptions));

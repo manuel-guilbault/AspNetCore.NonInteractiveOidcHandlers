@@ -210,3 +210,26 @@ services
   })
 ;
 ```
+
+## Access token pass-through
+
+In addition to the aforementioned strategies, an ASP .NET Core application may simply need to pass its inbound 
+access token through to any downstream API call. When applied in the context of an API calling another API, 
+this is called *poor man’s delegation* (see 
+[Identity Server's doc](https://identityserver4.readthedocs.io/en/release/topics/extension_grants.html#example-simple-delegation-using-an-extension-grant)
+).
+
+In the context of a web application using the `authorization_code` or the `hybird` grant type, such as an MVC
+application, it can make perfect sense to simply pass through the access token of the current authenticated user
+to downstream API calls, hence this extension method:
+
+```csharp
+services
+    .AddHttpClient("client-for-my-downstream-api")
+    .AddAccessTokenPassThrough()
+;
+```
+
+Here, the `HttpClient` instance named `client-for-my-downstream-api` will have in its pipeline a 
+delegating handler which will try to retrieve a token named `access_token` from the request's authentication
+ticket and, if any, will inject its value as `Bearer` in the outbound HTTP request's `Authorization` header.
