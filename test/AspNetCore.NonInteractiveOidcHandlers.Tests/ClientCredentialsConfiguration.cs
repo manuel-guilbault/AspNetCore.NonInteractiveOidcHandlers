@@ -100,14 +100,15 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 		public void No_Authority_but_TokenEndpoint_should_not_throw()
 		{
 			Task Act() => HostFactory
-				.CreateClient(b => b.AddOidcClientCredentials(o =>
-				{
-					o.TokenEndpoint = "https://authority/connect/token";
-					o.ClientId = "test-client";
-					o.ClientSecret = "test-client secret key";
-					o.Scope = "downstream-api";
-					o.AuthorityHttpClientAccessor = () => TokenEndpointHandler.ValidBearerToken("some-token", TimeSpan.MaxValue).AsHttpClient();
-				}))
+				.CreateClient(
+					b => b.AddOidcClientCredentials(o =>
+					{
+						o.TokenEndpoint = "https://authority/connect/token";
+						o.ClientId = "test-client";
+						o.ClientSecret = "test-client secret key";
+						o.Scope = "downstream-api";
+					}),
+					TokenEndpointHandler.ValidBearerToken("some-token", TimeSpan.MaxValue))
 				.GetAsync("https://default");
 
 			Check.ThatAsyncCode(Act).Not.ThrowsAny();
@@ -136,14 +137,16 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 		public void EnabledCaching_with_caching_service_should_not_throw()
 		{
 			Task Act() => HostFactory
-				.CreateClient(b => b.AddOidcClientCredentials(o =>
-				{
-					o.TokenEndpoint = "https://authority/connect/token";
-					o.ClientId = "test-client";
-					o.ClientSecret = "test-client secret key";
-					o.Scope = "downstream-api";
-					o.AuthorityHttpClientAccessor = () => TokenEndpointHandler.ValidBearerToken("some-token", TimeSpan.MaxValue).AsHttpClient();
-				}), addCaching: true)
+				.CreateClient(
+					b => b.AddOidcClientCredentials(o =>
+					{
+						o.TokenEndpoint = "https://authority/connect/token";
+						o.ClientId = "test-client";
+						o.ClientSecret = "test-client secret key";
+						o.Scope = "downstream-api";
+					}),
+					TokenEndpointHandler.ValidBearerToken("some-token", TimeSpan.MaxValue),
+					addCaching: true)
 				.GetAsync("https://default");
 
 			Check.ThatAsyncCode(Act).Not.ThrowsAny();

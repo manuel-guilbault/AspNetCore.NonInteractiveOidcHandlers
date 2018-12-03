@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace AspNetCore.NonInteractiveOidcHandlers.Tests.Util
 {
-	class TokenEndpointHandler: HttpMessageHandler
+	class TokenEndpointHandler: DelegatingHandler
 	{
 		public static TokenEndpointHandler ValidBearerToken(string accessToken, TimeSpan expiresIn)
 			=> new TokenEndpointHandler(HttpStatusCode.OK, new
@@ -55,7 +55,5 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests.Util
 			};
 			return response;
 		}
-
-		public HttpClient AsHttpClient() => new HttpClient(this);
 	}
 }

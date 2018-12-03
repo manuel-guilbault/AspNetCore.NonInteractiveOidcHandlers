@@ -14,17 +14,38 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests.Util
 
 		public static TestServer CreateServer(
 			Action<IHttpClientBuilder> addTokenHandler,
+			TokenEndpointHandler tokenEndpointHandler = null,
 			bool addCaching = false,
 			DownstreamApiHandler downstreamApi = null)
-			=> CreateServer(addCaching, new DownstreamApi(DefaultDownstreamApi, downstreamApi ?? new DownstreamApiHandler(), addTokenHandler));
+			=> CreateServer(tokenEndpointHandler, addCaching, new DownstreamApi(DefaultDownstreamApi, downstreamApi ?? new DownstreamApiHandler(), addTokenHandler));
 
 		public static TestServer CreateServer(
+			TokenEndpointHandler tokenEndpointHandler = null,
+			bool addCaching = false,
+			params DownstreamApi[] downstreamApis)
+			=> CreateServer(
+				services =>
+				{
+					if (tokenEndpointHandler != null)
+					{
+						services
+							.AddHttpClient(TokenHandlerOptions.DefaultAuthorityHttpClientName)
+							.AddHttpMessageHandler(() => tokenEndpointHandler);
+					}
+				},
+				addCaching,
+				downstreamApis);
+
+		public static TestServer CreateServer(
+			Action<IServiceCollection> configureServices = null,
 			bool addCaching = false,
 			params DownstreamApi[] downstreamApis)
 		{
 			return new TestServer(new WebHostBuilder()
 				.ConfigureServices(services =>
 				{
+					configureServices?.Invoke(services);
+
 					if (addCaching)
 					{
 						services.AddDistributedMemoryCache();
@@ -54,15 +75,17 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests.Util
 
 		public static HttpClient CreateClient(
 			Action<IHttpClientBuilder> addTokenHandler,
+			TokenEndpointHandler tokenEndpointHandler = null,
 			bool addCaching = false,
 			DownstreamApiHandler downstreamApi = null)
-			=> CreateServer(addTokenHandler, addCaching, downstreamApi)
+			=> CreateServer(addTokenHandler, tokenEndpointHandler, addCaching, downstreamApi)
 				.CreateClient();
 
 		public static HttpClient CreateClient(
+			Action<IServiceCollection> configureServices = null,
 			bool addCaching = false,
 			params DownstreamApi[] downstreamApis)
-			=> CreateServer(addCaching, downstreamApis)
+			=> CreateServer(configureServices, addCaching, downstreamApis)
 				.CreateClient();
 	}
 }

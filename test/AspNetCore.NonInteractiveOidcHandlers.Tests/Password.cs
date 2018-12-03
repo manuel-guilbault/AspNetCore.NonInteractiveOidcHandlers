@@ -28,11 +28,9 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 		public void Token_request_error_should_throw()
 		{
 			var client = HostFactory
-				.CreateClient(b => b.AddOidcPassword(o =>
-				{
-					_options(o);
-					o.AuthorityHttpClientAccessor = () => TokenEndpointHandler.BadRequest("invalid_grant").AsHttpClient();
-				}));
+				.CreateClient(
+					b => b.AddOidcPassword(_options),
+					TokenEndpointHandler.BadRequest("invalid_grant"));
 
 			async Task Act() => await client.GetAsync("https://default");
 
@@ -46,12 +44,10 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 			var tokenEndpoint = TokenEndpointHandler.ValidBearerToken("access-token", TimeSpan.MaxValue);
 			var api = new DownstreamApiHandler();
 			var client = HostFactory
-				.CreateClient(b => b.AddOidcPassword(o =>
-				{
-					_options(o);
-					o.AuthorityHttpClientAccessor = () => tokenEndpoint.AsHttpClient();
-				}),
-				api: api);
+				.CreateClient(
+					b => b.AddOidcPassword(_options),
+					tokenEndpoint,
+					api: api);
 
 			await client.GetAsync("https://default");
 
@@ -73,18 +69,23 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 			var client = HostFactory
 				.CreateClient(
 					"api-b",
+					services =>
+					{
+						services.AddHttpClient("api-a-authority").AddHttpMessageHandler(() => tokenEndpointA);
+						services.AddHttpClient("api-b-authority").AddHttpMessageHandler(() => tokenEndpointB);
+					},
 					false,
 					new DownstreamApi("api-a", apiA, b => b.AddOidcPassword(o =>
 					{
 						_options(o);
 						o.Scope = "api-a";
-						o.AuthorityHttpClientAccessor = () => tokenEndpointA.AsHttpClient();
+						o.AuthorityHttpClientName = "api-a-authority";
 					})),
 					new DownstreamApi("api-b", apiB, b => b.AddOidcPassword(o =>
 					{
 						_options(o);
 						o.Scope = "api-b";
-						o.AuthorityHttpClientAccessor = () => tokenEndpointB.AsHttpClient();
+						o.AuthorityHttpClientName = "api-b-authority";
 					})));
 
 			await client.GetAsync("https://api-b");

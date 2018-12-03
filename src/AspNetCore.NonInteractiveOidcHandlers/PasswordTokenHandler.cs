@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using AspNetCore.NonInteractiveOidcHandlers.Infrastructure;
@@ -12,17 +13,20 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 	public class PasswordTokenHandler: CachingTokenHandler
 	{
 		private readonly ILogger<PasswordTokenHandler> _logger;
+		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly PasswordTokenHandlerOptions _options;
 		private readonly IServiceProvider _serviceProvider;
 
 		public PasswordTokenHandler(
 			ILogger<PasswordTokenHandler> logger,
+			IHttpClientFactory httpClientFactory,
 			IDistributedCache cache,
 			PasswordTokenHandlerOptions options,
 			IServiceProvider serviceProvider)
 			: base(logger, cache, options)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 		}
@@ -70,10 +74,11 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 
 		private async Task<TokenResponse> RequestToken(string userName, string password)
 		{
-			var httpClient = _options.AuthorityHttpClientAccessor();
+			var httpClient = _httpClientFactory.CreateClient(_options.AuthorityHttpClientName);
+			var tokenEndpoint = await _options.GetTokenEndpointAsync(httpClient).ConfigureAwait(false);
 			var tokenRequest = new PasswordTokenRequest
 			{
-				Address = await _options.GetTokenEndpointAsync().ConfigureAwait(false),
+				Address = tokenEndpoint,
 				GrantType = _options.GrantType,
 				ClientId = _options.ClientId,
 				ClientSecret = _options.ClientSecret,

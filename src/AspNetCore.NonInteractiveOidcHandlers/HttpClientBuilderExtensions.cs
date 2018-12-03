@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using AspNetCore.NonInteractiveOidcHandlers;
 using AspNetCore.NonInteractiveOidcHandlers.Infrastructure;
 using Microsoft.AspNetCore.Http;
@@ -57,6 +58,7 @@ namespace Microsoft.Extensions.DependencyInjection
 				return new DelegationTokenHandler(
 					sp.GetRequiredService<ILogger<DelegationTokenHandler>>(),
 					sp.GetRequiredService<IHttpContextAccessor>(),
+					sp.GetRequiredService<IHttpClientFactory>(),
 					sp.GetService<IDistributedCache>(),
 					options);
 			});
@@ -79,6 +81,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
 				return new ClientCredentialsTokenHandler(
 					sp.GetRequiredService<ILogger<ClientCredentialsTokenHandler>>(),
+					sp.GetRequiredService<IHttpClientFactory>(),
 					sp.GetService<IDistributedCache>(),
 					options);
 			});
@@ -101,6 +104,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
 				return new PasswordTokenHandler(
 					sp.GetRequiredService<ILogger<PasswordTokenHandler>>(),
+					sp.GetRequiredService<IHttpClientFactory>(),
 					sp.GetService<IDistributedCache>(),
 					options,
 					sp);
@@ -124,6 +128,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
 				return new RefreshTokenHandler(
 					sp.GetRequiredService<ILogger<RefreshTokenHandler>>(),
+					sp.GetRequiredService<IHttpClientFactory>(),
 					sp.GetService<IDistributedCache>(),
 					options,
 					sp);

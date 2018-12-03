@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using AspNetCore.NonInteractiveOidcHandlers.Infrastructure;
@@ -15,17 +16,20 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 	{
 		private readonly ILogger<DelegationTokenHandler> _logger;
 		private readonly IHttpContextAccessor _httpContextAccessor;
+		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly DelegationTokenHandlerOptions _options;
 
 		public DelegationTokenHandler(
-			ILogger<DelegationTokenHandler> logger, 
+			ILogger<DelegationTokenHandler> logger,
 			IHttpContextAccessor httpContextAccessor,
+			IHttpClientFactory httpClientFactory,
 			IDistributedCache cache,
 			DelegationTokenHandlerOptions options)
 			: base(logger, cache, options)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 		}
 		
@@ -82,7 +86,8 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 
 		private async Task<TokenResponse> RequestToken(string inboundToken)
 		{
-			var httpClient = _options.AuthorityHttpClientAccessor();
+			var httpClient = _httpClientFactory.CreateClient(_options.AuthorityHttpClientName);
+			var tokenEndpoint = await _options.GetTokenEndpointAsync(httpClient).ConfigureAwait(false);
 
 			var extraParameters = _options.ExtraTokenParameters?.ToDictionary(x => x.Key, x => x.Value) ?? new Dictionary<string, string>();
 			extraParameters["token"] = inboundToken;
@@ -90,7 +95,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 
 			var tokenRequest = new TokenRequest
 			{
-				Address = await _options.GetTokenEndpointAsync().ConfigureAwait(false),
+				Address = tokenEndpoint,
 				GrantType = _options.GrantType,
 				ClientId = _options.ClientId,
 				ClientSecret = _options.ClientSecret,

@@ -35,11 +35,8 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 		public void Token_delegation_error_should_throw()
 		{
 			var client = WebHostFactory.CreateClient(
-				b => b.AddOidcTokenDelegation(o =>
-				{
-					_options(o);
-					o.AuthorityHttpClientAccessor = () => TokenEndpointHandler.BadRequest("invalid_grant").AsHttpClient();
-				}));
+				b => b.AddOidcTokenDelegation(_options),
+				TokenEndpointHandler.BadRequest("invalid_grant"));
 			client.SetBearerToken("1234");
 
 			async Task Act() => await client.GetAsync("https://default");
@@ -54,11 +51,8 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 			var tokenEndpoint = TokenEndpointHandler.ValidBearerToken("downstream-token", TimeSpan.MaxValue);
 			var downstreamApi = new DownstreamApiHandler();
 			var client = WebHostFactory.CreateClient(
-				b => b.AddOidcTokenDelegation(o =>
-				{
-					_options(o);
-					o.AuthorityHttpClientAccessor = () => tokenEndpoint.AsHttpClient();
-				}),
+				b => b.AddOidcTokenDelegation(_options),
+				tokenEndpoint,
 				downstreamApi: downstreamApi);
 			client.SetBearerToken("upstream-token");
 
@@ -75,18 +69,24 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 			var downstreamApiA = new DownstreamApiHandler();
 			var tokenEndpointB = TokenEndpointHandler.ValidBearerToken("downstream-token-b", TimeSpan.MaxValue);
 			var downstreamApiB = new DownstreamApiHandler();
-			var client = WebHostFactory.CreateClient(false,
+			var client = WebHostFactory.CreateClient(
+				services =>
+				{
+					services.AddHttpClient("api-a-authority").AddHttpMessageHandler(() => tokenEndpointA);
+					services.AddHttpClient("api-b-authority").AddHttpMessageHandler(() => tokenEndpointB);
+				},
+				false,
 				new DownstreamApi("downstream-a", downstreamApiA, b => b.AddOidcTokenDelegation(o =>
 				{
 					_options(o);
 					o.Scope = "downstream-api-a";
-					o.AuthorityHttpClientAccessor = () => tokenEndpointA.AsHttpClient();
+					o.AuthorityHttpClientName = "api-a-authority";
 				})),
 				new DownstreamApi("downstream-b", downstreamApiB, b => b.AddOidcTokenDelegation(o =>
 				{
 					_options(o);
 					o.Scope = "downstream-api-b";
-					o.AuthorityHttpClientAccessor = () => tokenEndpointB.AsHttpClient();
+					o.AuthorityHttpClientName = "api-b-authority";
 				})));
 			client.SetBearerToken("upstream-token");
 

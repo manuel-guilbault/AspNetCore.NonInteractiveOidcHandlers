@@ -8,16 +8,44 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests.Util
 	{
 		private const string DefaultApi = "default";
 
-		public static IServiceProvider CreateHost(Action<IHttpClientBuilder> addTokenHandler,
+		public static IServiceProvider CreateHost(
+			Action<IHttpClientBuilder> addTokenHandler,
+			TokenEndpointHandler tokenEndpointHandler = null,
 			bool addCaching = false,
 			DownstreamApiHandler api = null)
-			=> CreateHost(addCaching, new DownstreamApi(DefaultApi, api ?? new DownstreamApiHandler(), addTokenHandler));
+			=> CreateHost(
+				tokenEndpointHandler,
+				addCaching,
+				new DownstreamApi(DefaultApi, api ?? new DownstreamApiHandler(), addTokenHandler));
 
 		public static IServiceProvider CreateHost(
+			TokenEndpointHandler tokenEndpointHandler = null,
+			bool addCaching = false,
+			params DownstreamApi[] apis)
+		{
+			return CreateHost(
+				services =>
+				{
+					if (tokenEndpointHandler != null)
+					{
+						services
+							.AddHttpClient(TokenHandlerOptions.DefaultAuthorityHttpClientName)
+							.AddHttpMessageHandler(() => tokenEndpointHandler);
+					}
+				},
+				addCaching,
+				apis);
+		}
+
+		public static IServiceProvider CreateHost(
+			Action<IServiceCollection> configureServices = null,
 			bool addCaching = false,
 			params DownstreamApi[] apis)
 		{
 			var services = new ServiceCollection();
+
+			configureServices?.Invoke(services);
+
 			if (addCaching)
 			{
 				services.AddDistributedMemoryCache();
@@ -41,14 +69,16 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests.Util
 
 		public static HttpClient CreateClient(
 			Action<IHttpClientBuilder> addTokenHandler,
+			TokenEndpointHandler tokenEndpointHandler = null,
 			bool addCaching = false,
 			DownstreamApiHandler api = null)
-			=> CreateHost(addTokenHandler, addCaching, api).GetHttpClient();
+			=> CreateHost(addTokenHandler, tokenEndpointHandler, addCaching, api).GetHttpClient();
 
 		public static HttpClient CreateClient(
 			string apiName,
+			Action<IServiceCollection> configureServices = null,
 			bool addCaching = false,
 			params DownstreamApi[] apis)
-			=> CreateHost(addCaching, apis).GetHttpClient(apiName);
+			=> CreateHost(configureServices, addCaching, apis).GetHttpClient(apiName);
 	}
 }

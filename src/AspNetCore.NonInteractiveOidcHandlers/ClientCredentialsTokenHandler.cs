@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using IdentityModel.Client;
@@ -11,15 +12,18 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 	public class ClientCredentialsTokenHandler: CachingTokenHandler
 	{
 		private readonly ILogger<ClientCredentialsTokenHandler> _logger;
+		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly ClientCredentialsTokenHandlerOptions _options;
 
 		public ClientCredentialsTokenHandler(
 			ILogger<ClientCredentialsTokenHandler> logger,
+			IHttpClientFactory httpClientFactory,
 			IDistributedCache cache,
 			ClientCredentialsTokenHandlerOptions options)
 			: base(logger, cache, options)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 		}
 		
@@ -57,11 +61,11 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 
 		private async Task<TokenResponse> GetToken()
 		{
-			var httpClient = _options.AuthorityHttpClientAccessor();
-
+			var httpClient = _httpClientFactory.CreateClient(_options.AuthorityHttpClientName);
+			var tokenEndpoint = await _options.GetTokenEndpointAsync(httpClient).ConfigureAwait(false);
 			var tokenRequest = new ClientCredentialsTokenRequest
 			{
-				Address = await _options.GetTokenEndpointAsync().ConfigureAwait(false),
+				Address = tokenEndpoint,
 				GrantType = _options.GrantType,
 				ClientId = _options.ClientId,
 				ClientSecret = _options.ClientSecret,
