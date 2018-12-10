@@ -76,9 +76,6 @@ Token acquisition events. When the delegating handler tries to acquire a new
 access token, it will either call the `OnTokenAcquired` event or the `OnTokenRequestFailed` event,
 depending on the outcome.
 
-Listening to the `OnTokenRequestFailed` event doesn't prevent the delegating handler from throwing
-an exception when a token request fails.
-
 For exemple, the `OnTokenAcquired` event can be useful to retrieve the new refresh token when using the
 `refresh_token` grant type and when the OIDC server renews the refresh token every time an access token
 is requested for it (e.g. when Identity Server's
@@ -233,3 +230,24 @@ services
 Here, the `HttpClient` instance named `client-for-my-downstream-api` will have in its pipeline a 
 delegating handler which will try to retrieve a token named `access_token` from the request's authentication
 ticket and, if any, will inject its value as `Bearer` in the outbound HTTP request's `Authorization` header.
+
+The name of the token (when retrieved from the authentication service) or where it is retrieved 
+from can be override using the options's `TokenRetriever` property.
+
+## Token request failure
+
+When a delegating handler fails to acquire an access token, it will log an error using ASP .NET Core's logging
+subsystem, and the HTTP request will be sent as unauthenticated. If you want to prevent sending unauthenticated
+requests in such a scenario, you can simply throw an exception from the `OnTokenRequestFailed` event:
+
+```csharp
+services
+    .AddHttpClient("client-for-my-downstream-api")
+    .AddOidcClientCredentials(options =>
+    {
+        // normal configuration...
+        options.Events.OnTokenRequestFailed = 
+            (tokenResponse) => throw new InvalidOperationException($"Token request failed: {tokenResponse.Error}");
+    })
+;
+```
