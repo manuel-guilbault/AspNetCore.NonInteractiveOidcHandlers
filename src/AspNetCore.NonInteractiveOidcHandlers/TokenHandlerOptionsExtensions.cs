@@ -15,11 +15,11 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 				return options.TokenEndpoint;
 			}
 
-			var endpoint = await options.GetTokenEndpointFromDiscoveryDocument(authorityHttpClient).ConfigureAwait(false);
+			var endpoint = await authorityHttpClient.GetTokenEndpointFromDiscoveryDocument(options).ConfigureAwait(false);
 			return endpoint;
 		}
 
-		public static async Task<string> GetTokenEndpointFromDiscoveryDocument(this TokenHandlerOptions options, HttpClient authorityHttpClient)
+		public static async Task<string> GetTokenEndpointFromDiscoveryDocument(this HttpClient authorityHttpClient, TokenHandlerOptions options)
 		{
 			var discoveryRequest = new DiscoveryDocumentRequest
 			{

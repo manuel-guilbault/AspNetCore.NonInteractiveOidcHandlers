@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AspNetCore.NonInteractiveOidcHandlers.Tests.Util;
+using IdentityModel.Client;
 using Microsoft.Extensions.DependencyInjection;
 using NFluent;
 using Xunit;
@@ -32,17 +33,39 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 		}
 
 		[Fact]
-		public void Token_delegation_error_should_throw()
+		public async Task Token_delegation_error_should_trigger_unauthenticated_request_to_downstream()
 		{
+			var downstreamApi = new DownstreamApiHandler();
 			var client = WebHostFactory.CreateClient(
 				b => b.AddOidcTokenDelegation(_options),
-				TokenEndpointHandler.BadRequest("invalid_grant"));
+				TokenEndpointHandler.OidcProtocolError("invalid_grant"),
+				downstreamApi: downstreamApi);
 			client.SetBearerToken("1234");
 
-			async Task Act() => await client.GetAsync("https://default");
+			await client.GetAsync("https://default");
 
-			Check.ThatAsyncCode(Act)
-				.Throws<InvalidOperationException>().WithMessage("Token retrieval failed: invalid_grant ");
+			Check.That(downstreamApi.LastRequestToken).IsNull();
+		}
+
+		[Fact]
+		public async Task Token_request_error_should_trigger_TokenRequestFailed_event()
+		{
+			var eventsMock = new TokenEventsMock();
+			var client = WebHostFactory.CreateClient(
+				b => b.AddOidcTokenDelegation(o =>
+				{
+					_options(o);
+					o.Events = eventsMock.CreateEvents();
+				}),
+				TokenEndpointHandler.OidcProtocolError("invalid_grant"),
+				downstreamApi: new DownstreamApiHandler());
+			client.SetBearerToken("1234");
+
+			await client.GetAsync("https://default");
+
+			Check.That(eventsMock.LatestTokenRequestFailed).IsNotNull();
+			Check.That(eventsMock.LatestTokenRequestFailed.ErrorType).IsEqualTo(ResponseErrorType.Protocol);
+			Check.That(eventsMock.LatestTokenRequestFailed.Error).IsEqualTo("invalid_grant");
 		}
 
 		[Fact]
@@ -60,6 +83,26 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 
 			Check.That(tokenEndpoint.LastRequestToken).IsEqualTo("upstream-token");
 			Check.That(downstreamApi.LastRequestToken).IsEqualTo("downstream-token");
+		}
+
+		[Fact]
+		public async Task Successful_token_request_should_trigger_TokenAcquired_event()
+		{
+			var eventsMock = new TokenEventsMock();
+			var client = WebHostFactory.CreateClient(
+				b => b.AddOidcTokenDelegation(o =>
+				{
+					_options(o);
+					o.Events = eventsMock.CreateEvents();
+				}),
+				TokenEndpointHandler.ValidBearerToken("access-token", TimeSpan.MaxValue),
+				downstreamApi: new DownstreamApiHandler());
+			client.SetBearerToken("upstream-token");
+
+			await client.GetAsync("https://default");
+
+			Check.That(eventsMock.LatestTokenAcquired).IsNotNull();
+			Check.That(eventsMock.LatestTokenAcquired.AccessToken).IsEqualTo("access-token");
 		}
 
 		[Fact]

@@ -30,7 +30,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 		/// </summary>
 		public Func<HttpContext, Task<string>> TokenRetriever { get; set; } = TokenRetrieval.FromAuthenticationService();
 
-		internal ConcurrentDictionary<string, AsyncLazy<TokenResponse>> LazyTokens { get; set; }
+		internal ConcurrentDictionary<string, AsyncLazy<TokenResponse>> LazyTokens { get; } = new ConcurrentDictionary<string, AsyncLazy<TokenResponse>>();
 
 		public override IEnumerable<string> GetValidationErrors()
 		{

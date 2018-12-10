@@ -41,13 +41,13 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 				return null;
 			}
 
-			return await GetTokenAsync($"refresh_token:{refreshToken.ToSha512()}", ct => AcquireToken(refreshToken, ct), cancellationToken)
+			return await GetTokenAsync($"refresh_token:{refreshToken.ToSha512()}", _ => AcquireTokenAsync(refreshToken), cancellationToken)
 				.ConfigureAwait(false);
 		}
 
-		private async Task<TokenResponse> AcquireToken(string refreshToken, CancellationToken cancellationToken)
+		private async Task<TokenResponse> AcquireTokenAsync(string refreshToken)
 		{
-			var lazyToken = _options.LazyTokens.GetOrAdd(refreshToken, rt => new AsyncLazy<TokenResponse>(() => RequestToken(rt)));
+			var lazyToken = _options.LazyTokens.GetOrAdd(refreshToken, rt => new AsyncLazy<TokenResponse>(() => RequestTokenAsync(rt)));
 			try
 			{
 				var tokenResponse = await lazyToken.Value.ConfigureAwait(false);
@@ -55,9 +55,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 				{
 					_logger.LogError($"Error returned from token endpoint: {tokenResponse.Error}");
 					await _options.Events.OnTokenRequestFailed.Invoke(tokenResponse).ConfigureAwait(false);
-					throw new InvalidOperationException(
-						$"Token retrieval failed: {tokenResponse.Error} {tokenResponse.ErrorDescription}",
-						tokenResponse.Exception);
+					return tokenResponse;
 				}
 
 				await _options.Events.OnTokenAcquired(tokenResponse).ConfigureAwait(false);
@@ -72,7 +70,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 			}
 		}
 
-		private async Task<TokenResponse> RequestToken(string refreshToken)
+		private async Task<TokenResponse> RequestTokenAsync(string refreshToken)
 		{
 			var httpClient = _httpClientFactory.CreateClient(_options.AuthorityHttpClientName);
 			var tokenEndpoint = await _options.GetTokenEndpointAsync(httpClient).ConfigureAwait(false);

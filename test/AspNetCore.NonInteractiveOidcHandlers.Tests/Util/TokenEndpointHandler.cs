@@ -20,7 +20,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests.Util
 				expires_in = expiresIn.TotalSeconds,
 			});
 
-		public static TokenEndpointHandler BadRequest(string error)
+		public static TokenEndpointHandler OidcProtocolError(string error)
 			=> new TokenEndpointHandler(HttpStatusCode.BadRequest, new { error });
 
 		private readonly HttpStatusCode _statusCode;

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using AspNetCore.NonInteractiveOidcHandlers.Tests.Util;
+using IdentityModel.Client;
 using Microsoft.Extensions.DependencyInjection;
 using NFluent;
 using Xunit;
@@ -22,16 +23,36 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 		};
 
 		[Fact]
-		public void Token_request_error_should_throw()
+		public async Task Token_request_error_should_trigger_unauthenticated_request_to_api()
 		{
+			var api = new DownstreamApiHandler();
 			var client = HostFactory.CreateClient(
 				b => b.AddOidcClientCredentials(_options),
-				TokenEndpointHandler.BadRequest("invalid_grant"));
+				TokenEndpointHandler.OidcProtocolError("invalid_grant"),
+				api: api);
 
-			async Task Act() => await client.GetAsync("https://default");
+			await client.GetAsync("https://default");
 
-			Check.ThatAsyncCode(Act)
-				.Throws<InvalidOperationException>().WithMessage("Token retrieval failed: invalid_grant ");
+			Check.That(api.LastRequestToken).IsNull();
+		}
+
+		[Fact]
+		public async Task Token_request_error_should_trigger_TokenRequestFailed_event()
+		{
+			var eventsMock = new TokenEventsMock();
+			var client = HostFactory.CreateClient(
+				b => b.AddOidcClientCredentials(o =>
+				{
+					_options(o);
+					o.Events = eventsMock.CreateEvents();
+				}),
+				TokenEndpointHandler.OidcProtocolError("invalid_grant"));
+
+			await client.GetAsync("https://default");
+
+			Check.That(eventsMock.LatestTokenRequestFailed).IsNotNull();
+			Check.That(eventsMock.LatestTokenRequestFailed.ErrorType).IsEqualTo(ResponseErrorType.Protocol);
+			Check.That(eventsMock.LatestTokenRequestFailed.Error).IsEqualTo("invalid_grant");
 		}
 
 		[Fact]
@@ -50,6 +71,24 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Tests
 			Check.That(tokenEndpoint.LastRequestClientSecret).IsEqualTo(ClientSecret);
 			Check.That(tokenEndpoint.LastRequestScope).IsEqualTo(Scope);
 			Check.That(api.LastRequestToken).IsEqualTo("access-token");
+		}
+
+		[Fact]
+		public async Task Successful_token_request_should_trigger_TokenAcquired_event()
+		{
+			var eventsMock = new TokenEventsMock();
+			var client = HostFactory.CreateClient(
+				b => b.AddOidcClientCredentials(o =>
+				{
+					_options(o);
+					o.Events = eventsMock.CreateEvents();
+				}),
+				TokenEndpointHandler.ValidBearerToken("access-token", TimeSpan.MaxValue));
+
+			await client.GetAsync("https://default");
+
+			Check.That(eventsMock.LatestTokenAcquired).IsNotNull();
+			Check.That(eventsMock.LatestTokenAcquired.AccessToken).IsEqualTo("access-token");
 		}
 
 		[Fact]

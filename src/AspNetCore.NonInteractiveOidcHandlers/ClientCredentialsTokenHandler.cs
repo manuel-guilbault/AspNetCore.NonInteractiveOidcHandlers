@@ -34,7 +34,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 
 		private async Task<TokenResponse> AcquireTokenAsync(CancellationToken cancellationToken)
 		{
-			var tokenResponseTask = _options.TokenMutex.AcquireAsync(GetToken);
+			var tokenResponseTask = _options.TokenMutex.AcquireAsync(RequestTokenAsync);
 			try
 			{
 				var tokenResponse = await tokenResponseTask.ConfigureAwait(false);
@@ -42,9 +42,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 				{
 					_logger.LogError($"Error returned from token endpoint: {tokenResponse.Error}");
 					await _options.Events.OnTokenRequestFailed.Invoke(tokenResponse).ConfigureAwait(false);
-					throw new InvalidOperationException(
-						$"Token retrieval failed: {tokenResponse.Error} {tokenResponse.ErrorDescription}",
-						tokenResponse.Exception);
+					return tokenResponse;
 				}
 
 				await _options.Events.OnTokenAcquired(tokenResponse).ConfigureAwait(false);
@@ -59,7 +57,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 			}
 		}
 
-		private async Task<TokenResponse> GetToken()
+		private async Task<TokenResponse> RequestTokenAsync()
 		{
 			var httpClient = _httpClientFactory.CreateClient(_options.AuthorityHttpClientName);
 			var tokenEndpoint = await _options.GetTokenEndpointAsync(httpClient).ConfigureAwait(false);

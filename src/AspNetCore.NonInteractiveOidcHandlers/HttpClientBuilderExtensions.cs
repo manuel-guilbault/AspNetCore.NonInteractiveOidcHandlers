@@ -47,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
 				.AddHttpContextAccessor()
 				.Configure(builder.Name, configureOptions)
 				.AddPostConfigure<DelegationTokenHandlerOptions, PostConfigureTokenHandlerOptions<DelegationTokenHandlerOptions>>()
-				.AddPostConfigure<DelegationTokenHandlerOptions, PostConfigureDelegationTokenHandlerOptions>();
+			;
 			
 			var instanceName = builder.Name;
 			return builder.AddHttpMessageHandler(sp =>
@@ -71,7 +71,7 @@ namespace Microsoft.Extensions.DependencyInjection
 			builder.Services
 				.Configure(builder.Name, configureOptions)
 				.AddPostConfigure<ClientCredentialsTokenHandlerOptions, PostConfigureTokenHandlerOptions<ClientCredentialsTokenHandlerOptions>>()
-				.AddPostConfigure<ClientCredentialsTokenHandlerOptions, PostConfigureClientCredentialsTokenHandlerOptions>();
+			;
 
 			var instanceName = builder.Name;
 			return builder.AddHttpMessageHandler(sp =>
@@ -94,7 +94,7 @@ namespace Microsoft.Extensions.DependencyInjection
 			builder.Services
 				.Configure(builder.Name, configureOptions)
 				.AddPostConfigure<PasswordTokenHandlerOptions, PostConfigureTokenHandlerOptions<PasswordTokenHandlerOptions>>()
-				.AddPostConfigure<PasswordTokenHandlerOptions, PostConfigurePasswordTokenHandlerOptions>();
+			;
 
 			var instanceName = builder.Name;
 			return builder.AddHttpMessageHandler(sp =>
@@ -118,7 +118,7 @@ namespace Microsoft.Extensions.DependencyInjection
 			builder.Services
 				.Configure(builder.Name, configureOptions)
 				.AddPostConfigure<RefreshTokenHandlerOptions, PostConfigureTokenHandlerOptions<RefreshTokenHandlerOptions>>()
-				.AddPostConfigure<RefreshTokenHandlerOptions, PostConfigureRefreshTokenHandlerOptions>();
+			;
 
 			var instanceName = builder.Name;
 			return builder.AddHttpMessageHandler(sp =>

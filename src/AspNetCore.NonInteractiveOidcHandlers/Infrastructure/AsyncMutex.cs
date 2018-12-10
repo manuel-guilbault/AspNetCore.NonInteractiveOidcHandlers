@@ -12,12 +12,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Infrastructure
 		{
 			lock (_taskGuard)
 			{
-				if (_task != null)
-				{
-					return _task;
-				}
-
-				return _task = factory();
+				return _task ?? (_task = factory());
 			}
 		}
 

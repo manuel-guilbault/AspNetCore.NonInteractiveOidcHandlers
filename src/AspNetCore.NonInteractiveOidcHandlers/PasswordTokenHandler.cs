@@ -41,13 +41,13 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 			}
 
 			var (userName, password) = userCredentials.Value;
-			return await GetTokenAsync($"password:{userName}", ct => AcquireToken(userName, password, ct), cancellationToken)
+			return await GetTokenAsync($"password:{userName}", _ => AcquireTokenAsync(userName, password), cancellationToken)
 				.ConfigureAwait(false);
 		}
 
-		private async Task<TokenResponse> AcquireToken(string userName, string password, CancellationToken cancellationToken)
+		private async Task<TokenResponse> AcquireTokenAsync(string userName, string password)
 		{
-			var lazyToken = _options.LazyTokens.GetOrAdd(userName, _ => new AsyncLazy<TokenResponse>(() => RequestToken(userName, password)));
+			var lazyToken = _options.LazyTokens.GetOrAdd(userName, _ => new AsyncLazy<TokenResponse>(() => RequestTokenAsync(userName, password)));
 			try
 			{
 				var tokenResponse = await lazyToken.Value.ConfigureAwait(false);
@@ -55,9 +55,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 				{
 					_logger.LogError($"Error returned from token endpoint: {tokenResponse.Error}");
 					await _options.Events.OnTokenRequestFailed.Invoke(tokenResponse).ConfigureAwait(false);
-					throw new InvalidOperationException(
-						$"Token retrieval failed: {tokenResponse.Error} {tokenResponse.ErrorDescription}",
-						tokenResponse.Exception);
+					return tokenResponse;
 				}
 
 				await _options.Events.OnTokenAcquired(tokenResponse).ConfigureAwait(false);
@@ -72,7 +70,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 			}
 		}
 
-		private async Task<TokenResponse> RequestToken(string userName, string password)
+		private async Task<TokenResponse> RequestTokenAsync(string userName, string password)
 		{
 			var httpClient = _httpClientFactory.CreateClient(_options.AuthorityHttpClientName);
 			var tokenEndpoint = await _options.GetTokenEndpointAsync(httpClient).ConfigureAwait(false);

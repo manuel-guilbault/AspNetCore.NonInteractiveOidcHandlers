@@ -49,11 +49,11 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 				return null;
 			}
 
-			return await GetTokenAsync($"delegation:{inboundToken}", ct => AcquireToken(inboundToken, ct), cancellationToken)
+			return await GetTokenAsync($"delegation:{inboundToken}", _ => AcquireTokenAsync(inboundToken), cancellationToken)
 				.ConfigureAwait(false);
 		}
 
-		private async Task<TokenResponse> AcquireToken(string inboundToken, CancellationToken cancellationToken)
+		private async Task<TokenResponse> AcquireTokenAsync(string inboundToken)
 		{
 			var lazyToken = _options.LazyTokens.GetOrAdd(inboundToken, CreateLazyDelegatedToken);
 
@@ -64,9 +64,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 				{
 					_logger.LogError($"Error returned from token endpoint: {tokenResponse.Error}");
 					await _options.Events.OnTokenRequestFailed.Invoke(tokenResponse).ConfigureAwait(false);
-					throw new InvalidOperationException(
-						$"Token retrieval failed: {tokenResponse.Error} {tokenResponse.ErrorDescription}",
-						tokenResponse.Exception);
+					return tokenResponse;
 				}
 
 				await _options.Events.OnTokenAcquired(tokenResponse).ConfigureAwait(false);
@@ -82,9 +80,9 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 		}
 		
 		private AsyncLazy<TokenResponse> CreateLazyDelegatedToken(string inboundToken)
-			=> new AsyncLazy<TokenResponse>(() => RequestToken(inboundToken));
+			=> new AsyncLazy<TokenResponse>(() => RequestTokenAsync(inboundToken));
 
-		private async Task<TokenResponse> RequestToken(string inboundToken)
+		private async Task<TokenResponse> RequestTokenAsync(string inboundToken)
 		{
 			var httpClient = _httpClientFactory.CreateClient(_options.AuthorityHttpClientName);
 			var tokenEndpoint = await _options.GetTokenEndpointAsync(httpClient).ConfigureAwait(false);

@@ -44,9 +44,13 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 			_logger.LogTrace("Token is not cached.");
 
 			var tokenResponse = await requestToken(cancellationToken).ConfigureAwait(false);
-			await _cache
-				.SetTokenAsync(prefixedCacheKey, tokenResponse, _options, cancellationToken)
-				.ConfigureAwait(false);
+			if (tokenResponse != null && !tokenResponse.IsError)
+			{
+				await _cache
+					.SetTokenAsync(prefixedCacheKey, tokenResponse, _options, cancellationToken)
+					.ConfigureAwait(false);
+			}
+
 			return tokenResponse;
 		}
 
@@ -55,7 +59,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 		{
 			var token = await GetTokenAsync(cancellationToken);
-			if (token != null && token.AccessToken.IsPresent())
+			if (token != null && !token.IsError && token.AccessToken.IsPresent())
 			{
 				request.SetBearerToken(token.AccessToken);
 			}

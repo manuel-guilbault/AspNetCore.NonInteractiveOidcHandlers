@@ -22,7 +22,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 		/// </summary>
 		public IDictionary<string, string> ExtraTokenParameters { get; set; }
 
-		internal AsyncMutex<TokenResponse> TokenMutex { get; set; }
+		internal AsyncMutex<TokenResponse> TokenMutex { get; } = new AsyncMutex<TokenResponse>();
 
 		public override IEnumerable<string> GetValidationErrors()
 		{
