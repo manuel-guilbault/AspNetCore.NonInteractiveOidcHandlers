@@ -38,14 +38,14 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 			var httpContext = _httpContextAccessor.HttpContext;
 			if (httpContext == null)
 			{
-				_logger.LogTrace($"No current HttpContext.");
+				_logger.LogTrace("No current HttpContext.");
 				return null;
 			}
 
 			var inboundToken = await _options.TokenRetriever(httpContext);
 			if (inboundToken.IsMissing())
 			{
-				_logger.LogInformation($"No access token in current request.");
+				_logger.LogInformation("No access token in current request.");
 				return null;
 			}
 
@@ -97,7 +97,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 				GrantType = _options.GrantType,
 				ClientId = _options.ClientId,
 				ClientSecret = _options.ClientSecret,
-				Parameters = extraParameters,
+				Parameters = extraParameters
 			};
 			var tokenResponse = await httpClient.RequestTokenAsync(tokenRequest).ConfigureAwait(false);
 			return tokenResponse;
