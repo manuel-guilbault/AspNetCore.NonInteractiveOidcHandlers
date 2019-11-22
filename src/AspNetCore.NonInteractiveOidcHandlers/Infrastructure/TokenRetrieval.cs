@@ -21,7 +21,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Infrastructure
 		}
 
 		/// <summary>
-		/// Reads the token from the authrorization header.
+		/// Reads the token from the authorization header.
 		/// </summary>
 		/// <param name="scheme">The scheme (defaults to Bearer).</param>
 		/// <returns></returns>

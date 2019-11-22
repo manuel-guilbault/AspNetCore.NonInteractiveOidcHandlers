@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using AspNetCore.NonInteractiveOidcHandlers.Infrastructure;
 using IdentityModel.Client;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
@@ -67,9 +67,9 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 				GrantType = _options.GrantType,
 				ClientId = _options.ClientId,
 				ClientSecret = _options.ClientSecret,
-				Scope = _options.Scope,
-				Parameters = _options.ExtraTokenParameters ?? new Dictionary<string, string>(),
+				Scope = _options.Scope
 			};
+			tokenRequest.Parameters.AddRange(_options.ExtraTokenParameters);
 			var tokenResponse = await httpClient.RequestClientCredentialsTokenAsync(tokenRequest).ConfigureAwait(false);
 			return tokenResponse;
 		}

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -80,9 +79,9 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 				GrantType = _options.GrantType,
 				ClientId = _options.ClientId,
 				ClientSecret = _options.ClientSecret,
-				RefreshToken = refreshToken,
-				Parameters = _options.ExtraTokenParameters ?? new Dictionary<string, string>(),
+				RefreshToken = refreshToken
 			};
+			tokenRequest.Parameters.AddRange(_options.ExtraTokenParameters);
 			var tokenResponse = await httpClient.RequestRefreshTokenAsync(tokenRequest).ConfigureAwait(false);
 			return tokenResponse;
 		}
