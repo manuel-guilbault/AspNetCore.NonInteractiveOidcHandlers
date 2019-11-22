@@ -8,6 +8,7 @@ authentication scenarii using [Open ID Connect](https://openid.net/connect/).
 
 [![Build Status](https://manuelguilbault.visualstudio.com/AspNetCore.NonInteractiveOidcHandlers/_apis/build/status/manuel-guilbault.AspNetCore.NonInteractiveOidcHandlers)](https://manuelguilbault.visualstudio.com/AspNetCore.NonInteractiveOidcHandlers/_build/latest?definitionId=2)
 ![Nuget version](https://img.shields.io/nuget/v/AspNetCore.NonInteractiveOidcHandlers)
+![Nuget version (with prereleases)](https://img.shields.io/nuget/vpre/AspNetCore.NonInteractiveOidcHandlers)
 ![Nuget downloads](https://img.shields.io/nuget/dt/AspNetCore.NonInteractiveOidcHandlers)
 
 ## Asp .NET Core
