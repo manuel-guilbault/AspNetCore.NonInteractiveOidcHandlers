@@ -7,9 +7,9 @@ authentication scenarii using [Open ID Connect](https://openid.net/connect/).
 > [IdentityModel.AspNetCore.OAuth2Introspection](https://github.com/IdentityModel/IdentityModel.AspNetCore.OAuth2Introspection) library.
 
 [![Build Status](https://manuelguilbault.visualstudio.com/AspNetCore.NonInteractiveOidcHandlers/_apis/build/status/manuel-guilbault.AspNetCore.NonInteractiveOidcHandlers)](https://manuelguilbault.visualstudio.com/AspNetCore.NonInteractiveOidcHandlers/_build/latest?definitionId=2)
-![Nuget version](https://img.shields.io/nuget/v/AspNetCore.NonInteractiveOidcHandlers)
-![Nuget version (with prereleases)](https://img.shields.io/nuget/vpre/AspNetCore.NonInteractiveOidcHandlers)
-![Nuget downloads](https://img.shields.io/nuget/dt/AspNetCore.NonInteractiveOidcHandlers)
+[![Nuget version](https://img.shields.io/nuget/v/AspNetCore.NonInteractiveOidcHandlers)](https://www.nuget.org/packages/AspNetCore.NonInteractiveOidcHandlers)
+[![Nuget version (with prereleases)](https://img.shields.io/nuget/vpre/AspNetCore.NonInteractiveOidcHandlers)](https://www.nuget.org/packages/AspNetCore.NonInteractiveOidcHandlers)
+[![Nuget downloads](https://img.shields.io/nuget/dt/AspNetCore.NonInteractiveOidcHandlers)](https://www.nuget.org/packages/AspNetCore.NonInteractiveOidcHandlers)
 
 ## Asp .NET Core
 
