@@ -82,7 +82,7 @@ depending on the outcome.
 For exemple, the `OnTokenAcquired` event can be useful to retrieve the new refresh token when using the
 `refresh_token` grant type and when the OIDC server renews the refresh token every time an access token
 is requested for it (e.g. when Identity Server's
-[RefreshTokenUsage](https://identityserver4.readthedocs.io/en/release/topics/refresh_tokens.html)
+[RefreshTokenUsage](https://identityserver4.readthedocs.io/en/latest/topics/refresh_tokens.html)
 is set to `OneTime`).
 
 ## Caching
@@ -190,7 +190,7 @@ when an API (dubbed *upstream*) must call another API (dubbed *downstream*), and
 APIs require different scopes.
 
 This use case is described in the Identity Server 
-[documentation](https://identityserver4.readthedocs.io/en/release/topics/extension_grants.html#example-simple-delegation-using-an-extension-grant).
+[documentation](https://identityserver4.readthedocs.io/en/latest/topics/extension_grants.html#example-simple-delegation-using-an-extension-grant).
 
 In addition to registering the delegating handler, the `AddOidcTokenDelegation` extension method will
 make sure the `IHttpContextAccessor` service is registered, as it uses the current `IHttpContext` to
@@ -216,7 +216,7 @@ services
 In addition to the aforementioned strategies, an ASP .NET Core application may simply need to pass its inbound 
 access token through to any downstream API call. When applied in the context of an API calling another API, 
 this is called *poor man’s delegation* (see 
-[Identity Server's doc](https://identityserver4.readthedocs.io/en/release/topics/extension_grants.html#example-simple-delegation-using-an-extension-grant)
+[Identity Server's doc](https://identityserver4.readthedocs.io/en/latest/topics/extension_grants.html#example-simple-delegation-using-an-extension-grant)
 ).
 
 In the context of a web application using the `authorization_code` or the `hybird` grant type, such as an MVC
@@ -235,7 +235,7 @@ delegating handler which will try to retrieve a token named `access_token` from 
 ticket and, if any, will inject its value as `Bearer` in the outbound HTTP request's `Authorization` header.
 
 The name of the token (when retrieved from the authentication service) or where it is retrieved 
-from can be override using the options's `TokenRetriever` property.
+from can be override using the options' `TokenRetriever` property.
 
 ## Token request failure
 
@@ -254,3 +254,5 @@ services
     })
 ;
 ```
+
+In such a case, the exception will bubble up to the `HttpClient.SendAsync()` call site.
