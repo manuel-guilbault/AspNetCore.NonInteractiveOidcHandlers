@@ -11,6 +11,30 @@ authentication scenarii using [Open ID Connect](https://openid.net/connect/).
 [![Nuget version (with prereleases)](https://img.shields.io/nuget/vpre/AspNetCore.NonInteractiveOidcHandlers)](https://www.nuget.org/packages/AspNetCore.NonInteractiveOidcHandlers)
 [![Nuget downloads](https://img.shields.io/nuget/dt/AspNetCore.NonInteractiveOidcHandlers)](https://www.nuget.org/packages/AspNetCore.NonInteractiveOidcHandlers)
 
+**Table of Content**
+
+1. [Asp .NET Core](#asp-net-core)
+1. [Common options](#common-options)
+   1. [`Authority`](#authority)
+   1. [`ClientId`](#clientid)
+   1. [`ClientSecret`](#clientsecret)
+   1. [`AuthorityHttpClientAccessor`](#authorityhttpclientaccessor)
+   1. [`DiscoveryPolicy`](#discoverypolicy)
+   1. [`TokenEndpoint`](#tokenendpoint)
+   1. [`Events`](#events)
+1. [Caching](#caching)
+   1. [`EnableCaching`](#enablecaching)
+   1. [`CacheKeyPrefix`](#cachekeyprefix)
+   1. [`CacheDuration`](#cacheduration)
+   1. [`TokenExpirationDelay`](#tokenexpirationdelay)
+1. [Supported non-interactive grant types](#supported-non-interactive-grant-types)
+   1. [`client_credentials`](#client_credentials)
+   1. [`password`](#password)
+   1. [`refresh_token`](#refresh_token)
+   1. [`delegation`](#delegation)
+1. [Access token pass-through](#access-token-pass-through)
+1. [Token request failure](#token-request-failure)
+
 ## Asp .NET Core
 
 This library exposes a bunch of extension methods on `IHttpClientBuilder` to 
@@ -43,7 +67,8 @@ A new token will be acquired every time a new request is sent and no token is fr
 
 ## Common options
 
-The options all have the following common properties:
+Each type of handler expects its own set of options. However, all option types have the following common 
+properties:
 
 ### `Authority`
 
