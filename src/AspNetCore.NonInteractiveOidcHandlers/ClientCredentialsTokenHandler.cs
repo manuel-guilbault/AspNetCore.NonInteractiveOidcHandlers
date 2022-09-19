@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -69,7 +70,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 				ClientSecret = _options.ClientSecret,
 				Scope = _options.Scope
 			};
-			tokenRequest.Parameters.AddRange(_options.ExtraTokenParameters);
+			tokenRequest.Parameters.AddRange(_options.ExtraTokenParameters ?? new Dictionary<string, string>());
 			var tokenResponse = await httpClient.RequestClientCredentialsTokenAsync(tokenRequest).ConfigureAwait(false);
 			return tokenResponse;
 		}
