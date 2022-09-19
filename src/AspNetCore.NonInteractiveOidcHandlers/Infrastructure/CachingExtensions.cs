@@ -22,7 +22,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers.Infrastructure
 			}
 
 			var json = CacheEncoding.GetString(bytes);
-			var tokenResponse = new TokenResponse(json);
+			var tokenResponse = new CachedTokenResponse(json);
 			return tokenResponse;
 		}
 
