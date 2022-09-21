@@ -97,7 +97,7 @@ namespace AspNetCore.NonInteractiveOidcHandlers
 				GrantType = _options.GrantType,
 				ClientId = _options.ClientId,
 				ClientSecret = _options.ClientSecret,
-				Parameters = extraParameters
+				Parameters = Parameters.FromObject(extraParameters)
 			};
 			var tokenResponse = await httpClient.RequestTokenAsync(tokenRequest).ConfigureAwait(false);
 			return tokenResponse;
